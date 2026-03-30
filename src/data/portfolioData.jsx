@@ -3,6 +3,9 @@ import {
   FaLinkedin, 
   FaEnvelope, 
   FaPhone,
+  FaCogs,
+  FaJava,
+  FaUser,
   FaPython,
   FaDatabase 
 } from 'react-icons/fa';
@@ -18,10 +21,10 @@ import {
   SiJupyter,
   SiGooglecolab,
   SiMysql,
+  SiDocker, 
+  SiKubernetes,
   SiGit
 } from 'react-icons/si';
-import { FaJava } from 'react-icons/fa';
-import { SiDocker, SiKubernetes } from "react-icons/si";
 
 
 /* ================= PERSONAL INFO ================= */
