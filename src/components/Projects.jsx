@@ -82,7 +82,7 @@ const Projects = () => {
     <section id="projects" className="py-20 bg-primary-bg">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <SectionTitle id="projects-title">My Projects</SectionTitle>
-        {/* Updated for Yashvardhan Singh: Projects data and Framer Motion animations are already present. */}
+        {/* Updated Projects data and Framer Motion animations are already present. */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {projects.map((project, index) => (
             <ProjectCard key={index} project={project} index={index} />

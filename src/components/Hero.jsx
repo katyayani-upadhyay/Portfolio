@@ -1,9 +1,9 @@
+import { motion } from 'framer-motion';
 import React from 'react';
-import { TypeAnimation } from 'react-type-animation';
-import { personalInfo, socialLinks } from '../data/portfolioData.jsx';
 import { FaDownload } from 'react-icons/fa';
 import { Link as ScrollLink } from 'react-scroll';
-import { motion } from 'framer-motion';
+import { TypeAnimation } from 'react-type-animation';
+import { personalInfo, socialLinks } from '../data/portfolioData.jsx';
 
 const Hero = () => {
   return (
@@ -28,7 +28,7 @@ const Hero = () => {
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-text-secondary mb-6">
             <TypeAnimation
               sequence={[
-                'Machine Learning enthusiast | AI enthusiast',
+                'Machine Learning and AI Engineer | Data science enthusiast',
                 2000,
                 'Building with Python and AI',
                 2000,

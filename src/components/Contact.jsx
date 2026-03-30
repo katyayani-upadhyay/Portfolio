@@ -31,7 +31,7 @@ const Contact = () => {
             I'm currently open to new opportunities and collaborations. Whether you have a project in mind, a question, or just want to say hi, my inbox is always open. I'll try my best to get back to you!
           </p>
           <a
-            href="https://mail.google.com/mail/?view=cm&fs=1&to=katyayani1612@gmail.com&su=Hello from Portfolio&body=Hi Yashvardhan,%0D%0A%0D%0AI came across your portfolio and would like to connect with you.%0D%0A%0D%0ABest regards,"
+            href="https://mail.google.com/mail/?view=cm&fs=1&to=katyayani1612@gmail.com&su=Hello from Portfolio&body=Hi Katyayani,%0D%0A%0D%0AI came across your portfolio and would like to connect with you.%0D%0A%0D%0ABest regards,"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-block px-10 py-4 font-mono text-lg bg-accent-1 text-primary-bg rounded-md hover:bg-opacity-80 transition-all duration-300 shadow-lg hover:shadow-accent-1/30"

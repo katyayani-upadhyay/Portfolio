@@ -17,10 +17,10 @@ const About = () => {
           transition={{ duration: 0.6 }}
         >
           <p className="text-lg text-text-secondary leading-relaxed">
-            Hi, I'm Katyayani Upadhyay — a Machine Learning enthusiast and AI enthusiast, passionate about building intelligent, data-driven solutions. I enjoy working on real-world problems using machine learning, from model development to deployment, and integrating them into scalable applications.
+            Hi, I'm Katyayani Upadhyay — a Machine Learning and AI engineer, passionate about building intelligent, data-driven solutions. I enjoy working on real-world problems using machine learning, from model development to deployment, and integrating them into scalable applications.
           </p>
           {/* Optional: Add a profile image here */}
-          {/* <img src={profilePlaceholder} alt="Utkarsh Dwivedi" className="w-40 h-40 rounded-full mx-auto my-6 border-4 border-accent-1" /> */}
+          {/* <img src={profilePlaceholder} alt="Katyayani Upadhyay" className="w-40 h-40 rounded-full mx-auto my-6 border-4 border-accent-1" /> */}
         </motion.div>
       </div>
     </section>

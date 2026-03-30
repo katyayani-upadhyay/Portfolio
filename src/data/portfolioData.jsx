@@ -21,20 +21,21 @@ import {
   SiGit
 } from 'react-icons/si';
 import { FaJava } from 'react-icons/fa';
+import { SiDocker, SiKubernetes } from "react-icons/si";
 
 
 /* ================= PERSONAL INFO ================= */
 
 export const personalInfo = {
   name: "Katyayani Upadhyay",
-  title: "Applied AI/ML Engineer | Data Science Engineer",
-  email: "katyayani1612@gmail.com",
+  title: "AI/ML Engineer | Data Science Enthusiast",
+  email: "https://mail.google.com/mail/?view=cm&fs=1&to=katyayani1612@gmail.com&su=Hello from Portfolio&body=Hi Katyayani,%0D%0A%0D%0AI came across your portfolio and would like to connect with you.%0D%0A%0D%0ABest regards",
   phone: "+91-9305234316",
   linkedin: "https://www.linkedin.com/in/katyayani-upadhyay",
   github: "https://www.github.com/katyayani-upadhyay",
   resumeLink: "/Resume.pdf",
   bio: "Applied AI-ML Engineer with hands-on experience in building, evaluating, and deploying machine learning models for audio and NLP tasks across large-scale datasets. Skilled in end-to-end ML pipelines from data preprocessing to inference and deployment.",
-  shortBio: "Applied AI/ML Engineer | Data Science Engineer"
+  shortBio: "Applied AI/ML Engineer | Data Science Enthusiast"
 };
 
 
@@ -83,7 +84,7 @@ export const projects = [
     description:
       "Architected an end-to-end audio ML pipeline handling 6 emotion classes across 10k+ samples. Extracted 13–40 MFCC features and trained supervised classifiers. Benchmarked using accuracy, precision, recall, confusion matrix and deployed via Flask API serving 100+ predictions.",
     date: "2025",
-    githubLink: "https://github.com/katyayani-upadhyay/Speech-Emotion-Recognition",
+    githubLink: "https://github.com/katyayani-upadhyay/Speech_emotion_recognition",
     category: "Audio Machine Learning",
     icon: <FaPython size={24} className="text-accent-1" />,
   },
@@ -99,26 +100,26 @@ export const projects = [
     description:
       "Built an NLP text classification system using TF-IDF and Logistic Regression achieving 94.5% accuracy. Processed and engineered features from 20k+ documents.",
     date: "2025",
-    githubLink: "https://github.com/katyayani-upadhyay/Fake-News-Detection",
+    githubLink: "https://github.com/katyayani-upadhyay/Fake-News-Detection-using-Machine-Learning",
     category: "Natural Language Processing",
     icon: <SiScikitlearn size={24} className="text-accent-1" />,
   },
   {
-    title: "Real Estate Price Prediction",
-    tech: [
-      "Python",
-      "Regression",
-      "EDA",
-      "Feature Engineering",
-      "Pandas",
-      "Scikit-learn"
-    ],
-    description:
-      "Developed regression models on 1,000+ structured housing records. Applied EDA, feature engineering and evaluated performance on 20% held-out validation data using regression metrics.",
-    date: "2025",
-    githubLink: "https://github.com/katyayani-upadhyay/Real-Estate-Price-Prediction",
-    category: "Regression Modeling",
-    icon: <FaDatabase size={24} className="text-accent-1" />,
+    title: "MLOps Batch Pipeline",
+tech: [
+  "Python",
+  "Docker",
+  "MLOps",
+  "Data Processing",
+  "JSON",
+  "Performance Optimization"
+],
+description:
+  "Built a containerized batch pipeline using Docker to process 10,000+ records and compute metrics like signal_rate. Designed for efficient execution with low latency (~18ms) and reproducible results using fixed seed and structured JSON outputs.",
+date: "2026",
+githubLink: "https://github.com/katyayani-upadhyay/mlops-batch-pipeline",
+category: "MLOps & Deployment",
+icon: <FaCogs size={24} className="text-accent-1" />,
   },
 ];
 
@@ -164,6 +165,8 @@ export const skills = {
     { name: "Streamlit", icon: <SiStreamlit /> },
     { name: "Git", icon: <SiGit /> },
     { name: "Jupyter Notebook", icon: <SiJupyter /> },
+    { name: "Docker", icon: <SiDocker /> },
+    { name: "Kubernetes", icon: <SiKubernetes /> },
     { name: "Google Colab", icon: <SiGooglecolab /> }
   ],
 
