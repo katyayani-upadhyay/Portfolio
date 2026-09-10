@@ -65,8 +65,8 @@
       "problem": "A retrieval-only baseline could answer policy questions but could not act: on a 30-row stratified eval it reached 0% tool-call success and 50% citation coverage.",
       "built": "An agentic RAG assistant combining policy retrieval with typed MCP tool calls, run through a decide–act–reflect LangGraph loop. Citation guardrails refuse rather than guess, a 3-provider LLM failover keeps it up, and a GitHub Actions eval gate blocks regressions. Ships with a React/TypeScript agent-trace UI. All demo data is synthetic.",
       "metrics": [
-        { "value": "0% → 100%", "label": "tool-call success" },
-        { "value": "50% → 100%", "label": "citation coverage" },
+        { "value": "0%→100%", "label": "tool-call success" },
+        { "value": "50%→100%", "label": "citation coverage" },
         { "value": "0.99", "label": "RAGAS faithfulness" },
         { "value": "30", "label": "row stratified eval" }
       ],

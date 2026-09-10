@@ -1,86 +1,109 @@
-/* src/index.css */
-/* Import Google Fonts - Must be before Tailwind directives */
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Poppins:wght@400;600;700&display=swap');
+@import '@fontsource-variable/schibsted-grotesk';
+@import '@fontsource/ibm-plex-mono/400.css';
+@import '@fontsource/ibm-plex-mono/500.css';
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --bg: #f5f4f0;
+    --bg-raised: #ffffff;
+    --line: #d9d6ce;
+    --fg: #15161a;
+    --fg-muted: #5b6069;
+    --accent: #b3620a;
+    --accent-ink: #ffffff;
+    color-scheme: light;
+  }
+
+  .dark {
+    --bg: #0b0c0e;
+    --bg-raised: #111316;
+    --line: #22262b;
+    --fg: #e8e9eb;
+    --fg-muted: #9aa0a6;
+    --accent: #f0a533;
+    --accent-ink: #0b0c0e;
+    color-scheme: dark;
+  }
+
   html {
     scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 
   body {
-    @apply bg-primary-bg text-text-primary font-sans antialiased;
+    @apply bg-bg font-display text-fg antialiased;
+    font-feature-settings: 'kern' 1;
   }
 
   ::selection {
-    @apply bg-accent-1 text-primary-bg;
+    background: var(--accent);
+    color: var(--accent-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  section[id],
+  [id='top'] {
+    scroll-margin-top: 4.5rem;
   }
 }
 
-/* Custom scrollbar (using your previous example) */
-::-webkit-scrollbar {
-  width: 8px;
-}
+@layer components {
+  .label {
+    @apply font-mono text-label uppercase text-muted;
+  }
 
-::-webkit-scrollbar-track {
-  @apply bg-secondary-bg;
-}
+  .readout-value {
+    @apply font-mono text-fg;
+    font-variant-numeric: tabular-nums;
+  }
 
-::-webkit-scrollbar-thumb {
-  @apply bg-accent-1 rounded-full;
-}
+  .chip {
+    @apply inline-flex items-center rounded-sm border border-line px-2.5 py-1 font-mono text-[0.8125rem] leading-5 text-fg;
+  }
 
-::-webkit-scrollbar-thumb:hover {
-  @apply bg-opacity-80;
-}
+  .btn {
+    @apply inline-flex items-center gap-2 rounded-sm px-4 py-2.5 font-mono text-sm leading-5 transition-colors duration-200 ease-out;
+  }
 
-/* For section transitions (using your previous example) */
-.section-fade-in {
-  opacity: 0;
-  transform: translateY(20px);
-}
+  .btn-primary {
+    @apply bg-fg text-bg hover:bg-accent hover:text-accent-ink;
+  }
 
-/* --- ADD THESE STYLES FOR CARD FLIP --- */
-.perspective {
-  perspective: 1000px;
-  /* Creates the 3D space for children. Adjust value for more/less perspective. */
-}
+  .btn-ghost {
+    @apply border border-line text-fg hover:border-fg;
+  }
 
-.experience-card-inner {
-  transform-style: preserve-3d;
-  /* Allows children to be positioned in 3D space relative to this parent. */
-}
+  .text-link {
+    @apply underline decoration-line decoration-1 underline-offset-4 transition-colors duration-200 hover:decoration-fg;
+  }
 
-.experience-card-front,
-.experience-card-back {
-  backface-visibility: hidden;
-  /* Hides the back of the card when it's not facing the viewer. */
-  -webkit-backface-visibility: hidden;
-  /* For Safari browser compatibility. */
-  /* Ensure transitions on transform if you want smoother manual flips, though Tailwind handles the main flip */
-  /* transition: transform 0.7s cubic-bezier(0.4, 0.2, 0.2, 1); */
-  /* Example, already handled by Tailwind's duration class on inner div */
-}
+  .grid-cells {
+    @apply grid gap-px border border-line bg-line;
+  }
 
-/* Utility for rotating Y - Tailwind's rotate-y-180 class should handle this,
-   but having it explicitly can be a fallback or for understanding.
-   Tailwind v3+ includes `rotate-y-180` by default.
-   If for some reason it's not working, this custom class can be used.
-   The Experience.jsx component uses Tailwind's `rotate-y-180` class.
-*/
-/*
-.rotate-y-180 {
-  transform: rotateY(180deg);
+  .grid-cell {
+    @apply bg-bg;
+  }
 }
-*/
-/* --- END OF CARD FLIP STYLES --- */
-
-/* If you had animation-delay classes for blobs, they are not needed for this card flip version */
-/*
-.animation-delay-2000 {
-  animation-delay: 2000ms;
-}
-*/

@@ -1,18 +1,38 @@
-<!-- public/index.html -->
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Katyayani Upadhyay</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>Katyayani Upadhyay — AI/ML & Data Science Engineer</title>
+    <meta
+      name="description"
+      content="Katyayani Upadhyay: AI/ML and Data Science Engineer building agentic GenAI systems and the data pipelines that keep them trustworthy."
+    />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0b0c0e" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f5f4f0" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <meta property="og:title" content="Katyayani Upadhyay" />
+    <meta property="og:description" content="Engineering AI that acts, not just answers." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://portfolio-delta-sand-89.vercel.app/" />
+    <script>
+      // Apply the saved theme before first paint to avoid a flash.
+      (function () {
+        try {
+          var param = new URLSearchParams(location.search).get('theme');
+          var stored = param === 'light' || param === 'dark' ? param : localStorage.getItem('theme');
+          var dark = stored ? stored === 'dark' : !window.matchMedia('(prefers-color-scheme: light)').matches;
+          document.documentElement.classList.toggle('dark', dark);
+        } catch (e) {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="./src/main.jsx"></script>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
