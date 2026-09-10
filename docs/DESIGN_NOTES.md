@@ -130,6 +130,9 @@ it does not appear on the site.
   returned FUNCTION_INVOCATION_FAILED. Replaced the multi-file TypeScript
   function with a generated single-file bundle and a Node-style default export.
 
+- 2026-09-10: Redeploy verified live: `/api/chat` returns 400 for empty input,
+  405 for GET, and the resting message for questions (no key configured yet).
+
 ## 7. Open items
 
 - `GEMINI_API_KEY` must be added to the Vercel project before the assistant answers
