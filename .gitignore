@@ -1,2 +1,16 @@
+# dependencies
 node_modules
+
+# build output
 dist
+.vercel
+
+# local environment (secrets live here and in Vercel env vars only)
+.env
+.env.local
+.env.*.local
+
+# tooling
+coverage
+*.log
+.DS_Store
