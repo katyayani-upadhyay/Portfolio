@@ -94,9 +94,15 @@ it does not appear on the site.
 
 ## 5. Chatbot
 
-- `api/chat.ts` is a Vercel Node function using the Web `Request`/`Response`
-  signature. It calls Gemini's `generateContent` REST endpoint with plain `fetch`,
-  so the function has zero runtime dependencies and cold-starts quickly.
+- The handler is written against the Web `Request`/`Response` API in
+  `server/chat/handler.ts` and wrapped by a small Node `(req, res)` adapter. It
+  calls Gemini's `generateContent` REST endpoint with plain `fetch`, so the
+  function has zero runtime dependencies and cold-starts quickly.
+- `api/chat.ts` is a generated bundle of `server/chat/entry.ts` (esbuild, facts
+  inlined). The first deploy of a multi-file TypeScript function failed at
+  invocation on Vercel; shipping one self-contained file removes every
+  builder-specific failure mode. `server/chat/bundle.test.ts` fails if the
+  committed bundle drifts from the source.
 - Model defaults to `gemini-2.5-flash-lite`, overridable with `GEMINI_MODEL`.
 - Guardrails: 500-char input cap, 220 max output tokens, temperature 0.2,
   in-memory per-IP limiter (8 requests / minute), a soft per-instance daily cap.
@@ -119,6 +125,10 @@ it does not appear on the site.
 - 2026-09-10: Chatbot handler covered by 30 tests (validation, limiter, budget,
   refusal fallback, upstream failure paths). Verified locally through the Vite
   bridge: 400 for empty/oversized input, 405 for GET, resting message with no key.
+
+- 2026-09-10: First push deployed the static site correctly but `/api/chat`
+  returned FUNCTION_INVOCATION_FAILED. Replaced the multi-file TypeScript
+  function with a generated single-file bundle and a Node-style default export.
 
 ## 7. Open items
 

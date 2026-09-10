@@ -4,9 +4,9 @@ import react from '@vitejs/plugin-react'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 
 /**
- * In production the chatbot endpoint is a Vercel function (api/chat.ts).
- * Vite's dev server does not know about that directory, so this plugin
- * bridges POST /api/chat to the same handler during `npm run dev`.
+ * In production the chatbot endpoint is the Vercel function api/chat.ts,
+ * bundled from server/chat/entry.ts. Vite's dev server does not know about
+ * that directory, so this plugin serves the same entry during `npm run dev`.
  */
 function devApiBridge(env: Record<string, string>): Plugin {
   return {
@@ -20,22 +20,10 @@ function devApiBridge(env: Record<string, string>): Plugin {
       }
       server.middlewares.use('/api/chat', async (req: IncomingMessage, res: ServerResponse) => {
         try {
-          const mod = (await server.ssrLoadModule('/api/chat.ts')) as {
-            POST: (r: Request) => Promise<Response>
+          const mod = (await server.ssrLoadModule('/server/chat/entry.ts')) as {
+            default: (req: IncomingMessage, res: ServerResponse) => Promise<void>
           }
-          const chunks: Buffer[] = []
-          for await (const chunk of req) chunks.push(chunk as Buffer)
-          const request = new Request(`http://localhost${req.url ?? '/api/chat'}`, {
-            method: req.method,
-            headers: Object.entries(req.headers).flatMap(([k, v]) =>
-              v === undefined ? [] : [[k, Array.isArray(v) ? v.join(',') : v] as [string, string]],
-            ),
-            body: req.method === 'POST' ? Buffer.concat(chunks) : undefined,
-          })
-          const response = req.method === 'POST' ? await mod.POST(request) : new Response(null, { status: 405 })
-          res.statusCode = response.status
-          response.headers.forEach((value, key) => res.setHeader(key, value))
-          res.end(Buffer.from(await response.arrayBuffer()))
+          await mod.default(req, res)
         } catch (err) {
           server.config.logger.error(String(err))
           res.statusCode = 500

@@ -13,8 +13,9 @@
     "esModuleInterop": true,
     "isolatedModules": true,
     "skipLibCheck": true,
+    "allowImportingTsExtensions": true,
     "noEmit": true,
     "types": ["vite/client", "node"]
   },
-  "include": ["src", "api", "server", "vite.config.ts"]
+  "include": ["src", "server", "scripts", "vite.config.ts"]
 }

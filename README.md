@@ -57,8 +57,11 @@ the upstream call fails or the free quota is exhausted, the visitor sees
 No raw errors ever reach the browser.
 
 The implementation is in `server/chat/` (validation, rate limiting, prompt, Gemini
-client, handler) and is fully tested with an injected `fetch`. `api/chat.ts` is a
-two-line wrapper that Vercel deploys.
+client, handler, Node adapter) and is fully tested with an injected `fetch`.
+`api/chat.ts` is generated from it by `npm run build:api`: esbuild bundles
+`server/chat/entry.ts` into one self-contained file with the facts inlined, so the
+deployed function has no runtime imports to resolve. A test fails if the committed
+bundle is stale, and `npm run check:api` does the same check on its own.
 
 ## Running locally
 
@@ -76,6 +79,7 @@ npm run preview    # serve the production build
 npm run lint       # eslint
 npm run typecheck  # tsc --noEmit
 npm test           # vitest
+npm run build:api  # regenerate api/chat.ts after changing server/chat or facts.json
 ```
 
 ## Deployment

@@ -1,4 +1,4 @@
-import raw from '../../src/data/facts.json' with { type: 'json' }
+import raw from '../../src/data/facts.json'
 import { assertFacts, factsToText, type Facts } from '../../src/lib/facts'
 
 assertFacts(raw)
