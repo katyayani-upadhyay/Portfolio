@@ -1,96 +1,94 @@
-<div align="center">
-   <h1>Hi there, I'm Katyayani Upadhyay 👋</h1>
-   <p><b>Artificial Intelligence Machine Learning Engineer | Data Science Enthusiast | MLOps Learner</b></p>
-</div>
+# Katyayani Upadhyay — portfolio
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/Mayhemantt/mayhemantt/master/Assets/Developer.gif" width="220" alt="Developer Animation" />
-</p>
+Live at **https://portfolio-delta-sand-89.vercel.app/**
 
----
+This is my personal site. It is a single page that presents my work as an AI/ML and
+Data Science Engineer: three flagship projects with their measured results, my
+experience at GobbleCube and NIELIT, a grouped skills map, NPTEL certifications, and a
+small assistant that answers questions about me from a fixed set of facts.
 
-## 🌐 Live Portfolio
+## Stack
 
-👉 https://portfolio-delta-sand-89.vercel.app/
+- **React 19 + Vite 6** with TypeScript
+- **Tailwind CSS 3** with a CSS-variable theme (dark by default, light toggle)
+- **Framer Motion** for a single subtle entrance animation, disabled under
+  `prefers-reduced-motion`
+- **Vercel** for hosting and the `api/chat` serverless function
+- **Vitest** for tests, **ESLint** for linting
 
----
+Fonts are self-hosted through Fontsource (Schibsted Grotesk for text, IBM Plex Mono
+for numbers and labels), so the page makes no third-party requests.
 
-## 🧠 About This Portfolio
+## Sections
 
-This is my **personal developer portfolio website** built to showcase my work in **Machine Learning, Data Science, and MLOps**.
+1. **Hero** — name, tagline, positioning, profile links, and a resume download
+   (`public/resume.pdf`).
+2. **Flagship projects** — QuickCommerce Copilot, GridLoad Demand & Experiments, and
+   the Agentic AI Research Platform. Each card shows the problem, what I built, a
+   readout strip of real metrics, the tech involved, and GitHub + live links.
+3. **Experience** — GobbleCube (AI Engineer Intern) and NIELIT (AI/ML Engineer Intern).
+4. **Skills** — six groups: GenAI & Agentic AI, Data Science & Statistics, Data
+   Engineering, AI/ML, MLOps & Deployment, Programming.
+5. **Certifications** — four NPTEL courses.
+6. **Contact** — email, links, and what I am looking for: AI/ML Engineer and Data
+   Science Engineer roles, full-time, 2026.
 
-It features a **modern UI, smooth animations, and responsive design**, along with integrations of **AI-powered APIs** to create an interactive user experience.
+## Content is data
 
----
+Everything the site says lives in [`src/data/facts.json`](src/data/facts.json). The
+components render from it and the chatbot's system prompt is generated from it, so
+there is exactly one place to update a number, a date, or a link. A test in
+`src/lib/facts.test.ts` checks the structure and that the key figures survive into the
+prompt text verbatim.
 
-## 🚀 Key Highlights
+## The assistant ("Ask about Katyayani")
 
-* 💼 Showcases real-world **ML & Data Science projects**
-* 🤖 Integration with **AI APIs (Gemini, Vapi)**
-* ⚡ Smooth animations using **Framer Motion**
-* 📱 Fully responsive (mobile-first design)
-* 🌐 Deployed on **Vercel**
+A floating widget, bottom-right, collapsed by default. It sends the visitor's question
+to `POST /api/chat`, a Vercel function that calls Gemini (`gemini-2.5-flash-lite` by
+default) with a system prompt built from the facts file. The model is told to answer
+only from those facts, in the third person, in two to four sentences, and to decline
+anything else with a fixed sentence. One of the suggested chips is deliberately
+off-topic to show that behaviour.
 
----
+Cost and abuse controls: 500-character input cap, low output-token limit, low
+temperature, an in-memory per-IP rate limit, and a soft daily budget per instance. If
+the upstream call fails or the free quota is exhausted, the visitor sees
+"The assistant is resting — meanwhile, everything about Katyayani is on this page."
+No raw errors ever reach the browser.
 
-## 🛠️ Tech Stack
+The implementation is in `server/chat/` (validation, rate limiting, prompt, Gemini
+client, handler) and is fully tested with an injected `fetch`. `api/chat.ts` is a
+two-line wrapper that Vercel deploys.
 
-### 💻 Frontend
+## Running locally
 
-* ⚛️ React.js / Next.js
-* 💨 Tailwind CSS
-* 🎨 Framer Motion
+```bash
+npm install
+cp .env.example .env      # then add your GEMINI_API_KEY
+npm run dev               # http://localhost:5173, /api/chat is bridged to the handler
+```
 
-### 🧠 Machine Learning & Deep Learning
+Other scripts:
 
-* Supervised & Unsupervised Learning (Regression, Classification, Clustering, PCA)
-* Model Optimization: Cross-validation, Hyperparameter Tuning, Bias-Variance Tradeoff
-* Deep Learning: ANN, CNN, basics of RNN/LSTM
-* NLP: Text preprocessing, TF-IDF, sentiment & emotion analysis
-* Frameworks: Scikit-learn, TensorFlow/Keras
-* Advanced Concepts: Transformers (basics), end-to-end ML pipeline design
-* Strong understanding of data preprocessing, feature engineering & model evaluation
+```bash
+npm run build      # production build to dist/
+npm run preview    # serve the production build
+npm run lint       # eslint
+npm run typecheck  # tsc --noEmit
+npm test           # vitest
+```
 
-### ⚙️ MLOps & Tools
+## Deployment
 
-* 🐳 Docker
-* ☸️ Kubernetes *(learning & exploring)*
-* Git & GitHub
-* Firebase
+The site deploys from this repository to Vercel on every push to `main`. Vercel
+detects Vite automatically and picks up `api/chat.ts` as a serverless function.
+`GEMINI_API_KEY` (and optionally `GEMINI_MODEL`) are set as environment variables in
+the Vercel project. Nothing secret is committed; `.env` is gitignored.
 
----
+## Contact
 
-## 📂 Featured Work
-
-### 🔹 MLOps Pipeline Project
-
-* Built a containerized ML pipeline using Docker
-* Processes large datasets and computes metrics efficiently
-* Achieved low latency (~18ms processing time)
-
-### 🔹 Emotion Detection System
-
-* NLP-based model to classify human emotions from text
-* Applied machine learning techniques for classification
-
----
-
-## 📄 Resume
-
-Available on the portfolio website
-
----
-
-## 📬 Contact Me
-
-* 📧 Email: [katyayani1612@gmail.com](mailto:katyayani1612@gmail.com)
-* 💼 LinkedIn: https://www.linkedin.com/in/katyayani-upadhyay
-* 💻 GitHub: https://github.com/katyayani-upadhyay
-
----
-
-## ✨ Final Note
-
-I am actively seeking **internship opportunities in Machine Learning / Data Science / AI** where I can apply my skills and continue learning.
-
-Let's connect and build something impactful 🚀
+- Email: [katyayani1612@gmail.com](mailto:katyayani1612@gmail.com)
+- LinkedIn: https://www.linkedin.com/in/katyayani-upadhyay
+- GitHub: https://github.com/katyayani-upadhyay
+- LeetCode: https://leetcode.com/u/Katyayani16
+- Kaggle: https://www.kaggle.com/katyayaniupadhyay
