@@ -99,3 +99,20 @@ export function Menu(props: IconProps) {
     </svg>
   )
 }
+
+export function Search(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <circle cx="11" cy="11" r="6" />
+      <path d="m20 20-4.2-4.2" />
+    </svg>
+  )
+}
+
+export function CornerDownLeft(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M20 5v6a2 2 0 0 1-2 2H5m0 0 4-4m-4 4 4 4" />
+    </svg>
+  )
+}

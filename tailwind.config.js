@@ -45,6 +45,10 @@ export default {
       transitionTimingFunction: {
         out: 'cubic-bezier(0.2, 0.6, 0.2, 1)',
       },
+      boxShadow: {
+        panel: 'var(--shadow)',
+        lift: 'var(--shadow-lift)',
+      },
     },
   },
   plugins: [],

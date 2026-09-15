@@ -6,7 +6,7 @@ import Section from './Section'
 export default function Experience() {
   return (
     <Section id="experience" index="02" title="Experience" note="Reverse chronological">
-      <ol className="divide-y divide-line border-y border-line">
+      <ol className="divide-y divide-line">
         {facts.experience.map((e) => (
           <Reveal as="li" key={`${e.company}-${e.period}`} className="grid gap-6 py-10 md:grid-cols-12 md:gap-8">
             <div className="md:col-span-3">

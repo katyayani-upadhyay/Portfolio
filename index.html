@@ -8,9 +8,9 @@
       name="description"
       content="Katyayani Upadhyay: AI/ML and Data Science Engineer building agentic GenAI systems and the data pipelines that keep them trustworthy."
     />
-    <meta name="color-scheme" content="dark light" />
-    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0b0c0e" />
-    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f5f4f0" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0f1318" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f6f3ec" />
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <meta property="og:title" content="Katyayani Upadhyay" />
@@ -23,10 +23,10 @@
         try {
           var param = new URLSearchParams(location.search).get('theme');
           var stored = param === 'light' || param === 'dark' ? param : localStorage.getItem('theme');
-          var dark = stored ? stored === 'dark' : !window.matchMedia('(prefers-color-scheme: light)').matches;
+          var dark = stored ? stored === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
           document.documentElement.classList.toggle('dark', dark);
         } catch (e) {
-          document.documentElement.classList.add('dark');
+          /* light is the default */
         }
       })();
     </script>

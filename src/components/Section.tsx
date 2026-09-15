@@ -13,9 +13,9 @@ export default function Section({ id, index, title, note, children }: SectionPro
   return (
     <section id={id} className="border-t border-line" aria-labelledby={`${id}-title`}>
       <div className="mx-auto max-w-page px-5 py-16 sm:px-8 md:py-24">
-        <header className="mb-10 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between md:mb-14">
+        <header className="mb-10 flex flex-col gap-3 border-b border-line pb-5 sm:flex-row sm:items-end sm:justify-between md:mb-12">
           <div className="flex items-baseline gap-4">
-            <span className="label" aria-hidden="true">
+            <span className="label !text-accent" aria-hidden="true">
               {index}
             </span>
             <h2 id={`${id}-title`} className="font-display text-3xl font-medium tracking-tight md:text-4xl">

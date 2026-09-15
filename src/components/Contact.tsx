@@ -32,9 +32,9 @@ export default function Contact() {
               {person.email}
             </a>
           </div>
-          <ul className="grid grid-cols-2 gap-px border border-line bg-line self-start md:col-span-5" aria-label="Profiles">
+          <ul className="grid-cells grid-cols-2 self-start md:col-span-5" aria-label="Profiles">
             {socials.map(({ label, href, Icon }) => (
-              <li key={label} className="bg-bg">
+              <li key={label} className="grid-cell">
                 <a
                   href={href}
                   target="_blank"
