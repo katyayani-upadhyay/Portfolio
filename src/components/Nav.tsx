@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { facts } from '../lib/loadFacts'
+import { isMac, openPalette } from '../lib/palette'
 import { useTheme } from '../lib/theme'
-import { Close, Menu, Moon, Sun } from './Icons'
+import { Close, Menu, Moon, Search, Sun } from './Icons'
 
 const links = [
   { href: '#projects', label: 'Projects' },
@@ -25,19 +26,22 @@ export default function Nav() {
   }, [open])
 
   const themeLabel = theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'
+  const shortcut = isMac() ? '⌘K' : 'Ctrl K'
+  const iconButton =
+    'flex h-8 w-8 items-center justify-center rounded-[3px] border border-line bg-raised text-fg transition-colors hover:border-fg'
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-line bg-bg" aria-label="Primary">
+    <nav className="sticky top-0 z-50 border-b border-line bg-bg/95 backdrop-blur-[2px]" aria-label="Primary">
       <div className="mx-auto flex h-14 max-w-page items-center justify-between px-5 sm:px-8">
-        <a href="#top" className="label !text-fg hover:text-accent">
+        <a href="#top" className="label link-slide !text-fg">
           {facts.person.name}
         </a>
 
-        <div className="hidden items-center gap-7 md:flex">
-          <ul className="flex items-center gap-6">
+        <div className="hidden items-center gap-6 md:flex">
+          <ul className="flex items-center gap-5">
             {links.map((l) => (
               <li key={l.href}>
-                <a href={l.href} className="font-mono text-[0.8125rem] text-muted transition-colors hover:text-fg">
+                <a href={l.href} className="link-slide font-mono text-[0.8125rem] text-muted hover:text-fg">
                   {l.label}
                 </a>
               </li>
@@ -47,28 +51,29 @@ export default function Nav() {
           <a
             href={facts.person.resumePath}
             download="Katyayani_Upadhyay_Resume.pdf"
-            className="font-mono text-[0.8125rem] text-muted transition-colors hover:text-fg"
+            className="link-slide font-mono text-[0.8125rem] text-muted hover:text-fg"
           >
             Resume
           </a>
           <button
             type="button"
-            onClick={toggleTheme}
-            aria-label={themeLabel}
-            title={themeLabel}
-            className="flex h-8 w-8 items-center justify-center rounded-sm border border-line text-fg transition-colors hover:border-fg"
+            onClick={openPalette}
+            className="flex h-8 items-center gap-2 rounded-[3px] border border-line bg-raised px-2.5 font-mono text-[0.75rem] text-muted transition-colors hover:border-fg hover:text-fg"
+            aria-label={`Command palette, ${shortcut}`}
           >
+            <Search size={14} />
+            <kbd className="text-[0.7rem]">{shortcut}</kbd>
+          </button>
+          <button type="button" onClick={toggleTheme} aria-label={themeLabel} title={themeLabel} className={iconButton}>
             {theme === 'dark' ? <Sun /> : <Moon />}
           </button>
         </div>
 
         <div className="flex items-center gap-2 md:hidden">
-          <button
-            type="button"
-            onClick={toggleTheme}
-            aria-label={themeLabel}
-            className="flex h-8 w-8 items-center justify-center rounded-sm border border-line text-fg"
-          >
+          <button type="button" onClick={openPalette} aria-label="Open command palette" className={iconButton}>
+            <Search size={14} />
+          </button>
+          <button type="button" onClick={toggleTheme} aria-label={themeLabel} className={iconButton}>
             {theme === 'dark' ? <Sun /> : <Moon />}
           </button>
           <button
@@ -77,7 +82,7 @@ export default function Nav() {
             aria-expanded={open}
             aria-controls="mobile-menu"
             aria-label={open ? 'Close menu' : 'Open menu'}
-            className="flex h-8 w-8 items-center justify-center rounded-sm border border-line text-fg"
+            className={iconButton}
           >
             {open ? <Close /> : <Menu />}
           </button>
@@ -89,11 +94,7 @@ export default function Nav() {
           <ul className="mx-auto max-w-page px-5 py-2 sm:px-8">
             {links.map((l) => (
               <li key={l.href}>
-                <a
-                  href={l.href}
-                  onClick={() => setOpen(false)}
-                  className="block py-3 font-mono text-sm text-fg"
-                >
+                <a href={l.href} onClick={() => setOpen(false)} className="block py-3 font-mono text-sm text-fg">
                   {l.label}
                 </a>
               </li>
