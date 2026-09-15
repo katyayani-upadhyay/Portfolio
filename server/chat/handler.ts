@@ -1,6 +1,6 @@
 import { factsText } from './facts'
 import { askGemini, GeminiError } from './gemini'
-import { buildSystemPrompt, REFUSAL, RESTING_MESSAGE } from './prompt'
+import { buildSystemPrompt, NOT_SHARED, RESTING_MESSAGE } from './prompt'
 import { clientKey, DailyBudget, SlidingWindowLimiter } from './rateLimit'
 import { parseChatRequest, readJson } from './validate'
 
@@ -71,7 +71,8 @@ export function createChatHandler(deps: HandlerDeps = {}) {
         message: parsed.message,
         fetchImpl: deps.fetchImpl,
       })
-      return json({ reply: text ?? REFUSAL })
+      // A blocked or empty completion is treated as "not shared" rather than guessed at.
+      return json({ reply: text ?? NOT_SHARED })
     } catch (err) {
       const status = err instanceof GeminiError ? err.status : 0
       log(`chat: upstream failure (${status || 'network'})`)

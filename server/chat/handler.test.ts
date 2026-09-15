@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { createChatHandler } from './handler'
-import { REFUSAL, RESTING_MESSAGE } from './prompt'
+import { NOT_SHARED, RESTING_MESSAGE } from './prompt'
 import { DailyBudget, SlidingWindowLimiter } from './rateLimit'
 
 function post(body: unknown, headers: Record<string, string> = {}) {
@@ -22,7 +22,7 @@ describe('POST /api/chat', () => {
     const fetchImpl = vi.fn(async (_url: RequestInfo | URL, init?: RequestInit) => {
       const sent = JSON.parse(String(init?.body))
       expect(sent.systemInstruction.parts[0].text).toContain('14,053')
-      expect(sent.systemInstruction.parts[0].text).toContain(REFUSAL)
+      expect(sent.systemInstruction.parts[0].text).toContain(NOT_SHARED)
       expect(sent.contents[0].parts[0].text).toBe('What does the Copilot do?')
       expect(sent.generationConfig.maxOutputTokens).toBeLessThanOrEqual(256)
       expect(sent.generationConfig.temperature).toBeLessThanOrEqual(0.3)
@@ -89,11 +89,49 @@ describe('POST /api/chat', () => {
     expect(text).not.toContain('ENOTFOUND')
   })
 
-  it('falls back to the refusal when the model returns nothing usable', async () => {
+  it('falls back to "not shared" when the model returns nothing usable', async () => {
     const fetchImpl = vi.fn(async () => new Response(JSON.stringify({ promptFeedback: { blockReason: 'SAFETY' } })))
     const handler = createChatHandler({ env: { GEMINI_API_KEY: 'k' }, fetchImpl, log: silent })
     const res = await handler(post({ message: 'hi' }))
-    expect(await res.json()).toEqual({ reply: REFUSAL })
+    expect(await res.json()).toEqual({ reply: NOT_SHARED })
+  })
+
+  describe('three lanes', () => {
+    const lanes = [
+      {
+        lane: 'A: about her, in the facts',
+        question: 'How accurate is her GridLoad forecast?',
+        reply: 'Her LightGBM day-ahead forecaster reached a WAPE of 2.16% against 4.49% for the seasonal-naive baseline over 15,335 hours.',
+      },
+      {
+        lane: 'B: general technical question',
+        question: 'What is CUPED?',
+        reply: 'CUPED is a variance-reduction technique for A/B tests that uses pre-experiment data as a covariate. Katyayani used it in her GridLoad experiments, cutting variance by 94.7%.',
+      },
+      {
+        lane: 'C: personal detail not in the facts',
+        question: 'What are her parents\' names?',
+        reply: NOT_SHARED,
+      },
+    ]
+    for (const { lane, question, reply } of lanes) {
+      it(`passes lane ${lane} through untouched with the lane instructions in the prompt`, async () => {
+        const fetchImpl = vi.fn(async (_url: RequestInfo | URL, init?: RequestInit) => {
+          const sent = JSON.parse(String(init?.body))
+          const system: string = sent.systemInstruction.parts[0].text
+          expect(system).toContain('LANE A')
+          expect(system).toContain('LANE B')
+          expect(system).toContain('LANE C')
+          expect(system).toContain('HARD RULE')
+          expect(sent.contents[0].parts[0].text).toBe(question)
+          return geminiReply(reply)
+        })
+        const handler = createChatHandler({ env: { GEMINI_API_KEY: 'k' }, fetchImpl, log: silent })
+        const res = await handler(post({ message: question }))
+        expect(res.status).toBe(200)
+        expect(await res.json()).toEqual({ reply })
+      })
+    }
   })
 
   it('rate limits per IP with a 429 and retry-after', async () => {

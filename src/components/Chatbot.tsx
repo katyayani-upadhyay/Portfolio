@@ -7,10 +7,9 @@ export const RESTING_MESSAGE =
   'The assistant is resting — meanwhile, everything about Katyayani is on this page.'
 
 const suggestions = [
-  { text: 'What does the QuickCommerce Copilot do?', kind: 'grounded' },
-  { text: 'How accurate is the GridLoad energy forecast?', kind: 'grounded' },
-  { text: 'What are her GenAI and data engineering skills?', kind: 'grounded' },
-  { text: 'What is the weather like today?', kind: 'off-topic' },
+  { text: 'What did she build in the QuickCommerce Copilot?', kind: 'project' },
+  { text: 'What is CUPED, and where has she used it?', kind: 'general' },
+  { text: 'Is she open to roles right now, and how do I reach her?', kind: 'contact' },
 ] as const
 
 interface Message {
@@ -100,7 +99,7 @@ export default function Chatbot() {
             {...panelMotion}
             role="dialog"
             aria-labelledby={titleId}
-            className="flex h-[min(34rem,calc(100dvh-7rem))] w-[min(24rem,calc(100vw-2.5rem))] flex-col border border-line bg-raised shadow-[0_24px_60px_-20px_rgba(0,0,0,0.5)]"
+            className="panel flex h-[min(34rem,calc(100dvh-7rem))] w-[min(24rem,calc(100vw-2.5rem))] flex-col shadow-lift"
           >
             <header className="flex items-start justify-between gap-3 border-b border-line px-4 py-3">
               <div>
@@ -108,7 +107,7 @@ export default function Chatbot() {
                   Ask about Katyayani
                 </h2>
                 <p className="label mt-1 normal-case tracking-normal">
-                  Answers only from the facts on this page. Off-topic questions are declined.
+                  Answers about Katyayani come only from the facts on this page. General questions are welcome too.
                 </p>
               </div>
               <button
@@ -137,12 +136,10 @@ export default function Chatbot() {
                         <button
                           type="button"
                           onClick={() => void send(s.text)}
-                          className="w-full border border-line px-3 py-2 text-left font-mono text-[0.8125rem] leading-5 text-fg transition-colors hover:border-fg"
+                          className="w-full rounded-[3px] border border-line px-3 py-2 text-left font-mono text-[0.8125rem] leading-5 text-fg transition-colors hover:border-fg"
                         >
+                          <span className="label mr-2 text-accent">{s.kind}</span>
                           {s.text}
-                          {s.kind === 'off-topic' ? (
-                            <span className="label ml-2 text-accent">off-topic test</span>
-                          ) : null}
                         </button>
                       </li>
                     ))}
@@ -209,7 +206,7 @@ export default function Chatbot() {
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
         aria-haspopup="dialog"
-        className="btn btn-primary shadow-[0_12px_30px_-12px_rgba(0,0,0,0.6)]"
+        className="btn btn-primary shadow-lift"
       >
         {open ? <Close /> : <Chat />}
         {open ? 'Close' : 'Ask about Katyayani'}
