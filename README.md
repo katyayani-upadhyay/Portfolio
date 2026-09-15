@@ -10,9 +10,9 @@ small assistant that answers questions about me from a fixed set of facts.
 ## Stack
 
 - **React 19 + Vite 6** with TypeScript
-- **Tailwind CSS 3** with a CSS-variable theme (dark by default, light toggle)
-- **Framer Motion** for a single subtle entrance animation, disabled under
-  `prefers-reduced-motion`
+- **Tailwind CSS 3** with a CSS-variable theme (light "engineering paper" by default, dark slate toggle, follows your system preference on first visit)
+- **Framer Motion** for a soft section reveal, a scroll-progress hairline, and the
+  command palette transition, all disabled under `prefers-reduced-motion`
 - **Vercel** for hosting and the `api/chat` serverless function
 - **Vitest** for tests, **ESLint** for linting
 
@@ -21,17 +21,20 @@ for numbers and labels), so the page makes no third-party requests.
 
 ## Sections
 
-1. **Hero** — name, tagline, positioning, profile links, and a resume download
-   (`public/resume.pdf`).
+1. **Hero** — name, tagline, positioning, profile links, a resume download
+   (`public/resume.pdf`), and a spec-sheet block summarising the facts.
 2. **Flagship projects** — QuickCommerce Copilot, GridLoad Demand & Experiments, and
-   the Agentic AI Research Platform. Each card shows the problem, what I built, a
-   readout strip of real metrics, the tech involved, and GitHub + live links.
+   the Agentic AI Research Platform. Each full-width row shows the problem, what I
+   built, a readout strip of real metrics, the tech involved, and GitHub + live links.
 3. **Experience** — GobbleCube (AI Engineer Intern) and NIELIT (AI/ML Engineer Intern).
 4. **Skills** — six groups: GenAI & Agentic AI, Data Science & Statistics, Data
    Engineering, AI/ML, MLOps & Deployment, Programming.
 5. **Certifications** — four NPTEL courses.
 6. **Contact** — email, links, and what I am looking for: AI/ML Engineer and Data
    Science Engineer roles, full-time, 2026.
+
+Press `⌘K` (or `Ctrl K`) anywhere for a command palette that jumps to sections,
+toggles the theme, downloads the resume, or opens my profiles.
 
 ## Content is data
 
@@ -45,10 +48,17 @@ prompt text verbatim.
 
 A floating widget, bottom-right, collapsed by default. It sends the visitor's question
 to `POST /api/chat`, a Vercel function that calls Gemini (`gemini-2.5-flash-lite` by
-default) with a system prompt built from the facts file. The model is told to answer
-only from those facts, in the third person, in two to four sentences, and to decline
-anything else with a fixed sentence. One of the suggested chips is deliberately
-off-topic to show that behaviour.
+default) with a system prompt built from the facts file. The prompt defines three lanes:
+
+- **About me, covered by the facts** — a specific answer in the third person, two to
+  four sentences, numbers and links exactly as written.
+- **General or technical questions** ("what is RAG?", "explain CUPED") — a short
+  generic answer, tied back to my work only when a fact genuinely relates.
+- **Personal details not in the facts** — no guessing; it says I haven't shared that
+  here and points to the contact links.
+
+The hard rule is that nothing about me may be fabricated or embellished; every
+personal claim must trace to `facts.json`.
 
 Cost and abuse controls: 500-character input cap, low output-token limit, low
 temperature, an in-memory per-IP rate limit, and a soft daily budget per instance. If

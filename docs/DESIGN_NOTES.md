@@ -138,3 +138,95 @@ it does not appear on the site.
 - `GEMINI_API_KEY` must be added to the Vercel project before the assistant answers
   in production; until then it returns the resting message.
 - Optional: a real-browser pass on the light theme at 768 px (tablet) once deployed.
+
+---
+
+# Revision 2 (2026-09-15): engineering paper, light-first
+
+## 8. Why the change
+
+The first revision read well but defaulted to a near-black wall, which the owner
+wanted replaced with something closer to a printed engineering sheet: warm paper,
+ink text, a faint graph-paper grid, and one confident accent. Dark mode stays as a
+toggle, re-tuned to slate rather than black.
+
+## 9. Tokens
+
+| Token | Light (paper) | Dark (slate) |
+| --- | --- | --- |
+| `--bg` | `#f6f3ec` | `#0f1318` |
+| `--bg-raised` | `#fbfaf6` | `#151a21` |
+| `--line` | `#dcd6c8` | `#262d37` |
+| `--fg` | `#14161a` | `#e6e8ec` |
+| `--fg-muted` | `#5a5f68` | `#9aa3ad` |
+| `--accent` | `#1d4ed8` | `#7aa2ff` |
+| `--grid` | `rgba(20,22,26,.055)` | `rgba(230,232,236,.035)` |
+
+Accent choice: electric blue over international orange. Orange at a usable
+saturation lands near 3:1 on paper and fails AA for text; blue `#1d4ed8` is 6.05:1
+on `--bg` and 6.42:1 on raised panels. Measured ratios (WCAG relative luminance):
+
+| Pair | Light | Dark |
+| --- | --- | --- |
+| fg on bg | 16.3 | 15.2 |
+| muted on bg | 5.8 | 7.3 |
+| accent on bg | 6.1 | 7.5 |
+| accent-ink on accent | 6.7 | 7.5 |
+
+The grid is drawn by a fixed `body::before` with two 1px gradients at 32px pitch,
+so it costs no image request and never scrolls with content.
+
+## 10. Interaction layer
+
+- **Scroll progress**: a 1px accent hairline at the top, `scaleX` bound to
+  `useScroll`. It reports position rather than decorating, so it stays on under
+  reduced motion.
+- **Command palette** (`⌘K` / `Ctrl K`, also a nav button): sections, actions
+  (toggle theme, download resume), and external links. `role="dialog"` with
+  `aria-modal`, combobox/listbox semantics, arrow-key navigation, Tab focus trap,
+  Escape to close, focus restored to the opener, body scroll locked while open.
+- **Theme crossfade**: the toggle adds a `theme-transition` class to `<html>` for
+  350ms that transitions colours only; skipped under reduced motion. Tokens are
+  CSS variables so nothing re-lays out, only repaints.
+- **Hover**: links underline-slide from the left (`background-size` on a 1px
+  gradient); project rows and panels lift 2px with a deeper shadow.
+- **Reveal**: unchanged 8px rise/fade, once.
+- First visit follows `prefers-color-scheme`; an explicit toggle persists.
+
+## 11. Layout changes
+
+- Hero summary plate became a **spec sheet**: titled header, field count, seven
+  rows, all values copied from `facts.json` (including counts derived from it).
+- Projects are **full-width rows**: identity and actions on the left; problem,
+  what I built, readout strip, and terminal-style tech chips (`›` prefix) on the
+  right. Rows are hoverable panels.
+- Section headers gained an accent index and a closing hairline.
+
+## 12. Chatbot: three lanes
+
+The prompt now routes each question into one of three lanes: (A) about Katyayani
+and in the facts → specific third-person answer; (B) general or technical → brief
+generic answer, connected to her work only when a fact genuinely relates; (C)
+personal but not in the facts → a fixed "she hasn't shared that here" sentence with
+the contact links. The hard rule stays: every claim about her must trace to
+`facts.json`. A blocked or empty completion is treated as lane C, never guessed.
+Input cap, output cap, temperature, per-IP limiter, daily budget, and the resting
+fallback are unchanged.
+
+Unit tests cover the prompt structure, the lane instructions reaching the model,
+representative replies for each lane passing through untouched, the stale-number
+sweep, and the fallback. Lane routing itself is model behaviour and is checked
+manually against the live endpoint.
+
+## 13. Log
+
+- 2026-09-15: Copilot facts updated to the 60-row eval results; tests assert the
+  30-row numbers are gone everywhere, including the bundled prompt.
+- 2026-09-15: Light-first redesign, command palette, scroll hairline, theme
+  crossfade, spec sheet, project rows, three-lane assistant.
+- 2026-09-15: Lighthouse on the production preview: desktop 100 / 100 / 100 / 100,
+  mobile 95 / 100 / 100 / 100 (performance, accessibility, best practices, SEO).
+  LCP 0.6 s desktop, 2.6 s mobile; TBT 0 ms; CLS 0 in both. Headless checks at
+  1440 and 390 px in both themes: no horizontal overflow, console clean.
+- 2026-09-15: Five-cell readout strips now sit 3 over 2 so no cell is left empty
+  and numerals stay on one line in the narrower project column.
