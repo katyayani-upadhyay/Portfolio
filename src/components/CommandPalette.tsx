@@ -215,14 +215,14 @@ export default function CommandPalette() {
                 aria-activedescendant={results[active] ? `${listId}-${results[active].id}` : undefined}
                 autoComplete="off"
                 spellCheck={false}
-                className="min-w-0 flex-1 bg-transparent py-3.5 font-mono text-sm text-fg placeholder:text-muted focus:outline-none"
+                className="min-w-0 flex-1 bg-transparent py-3.5 text-sm text-fg placeholder:text-muted focus:outline-none"
               />
               <kbd className="label rounded-[3px] border border-line px-1.5 py-0.5 !text-muted">esc</kbd>
             </div>
 
             <ul id={listId} role="listbox" aria-label="Commands" className="max-h-[50vh] overflow-y-auto py-2">
               {results.length === 0 ? (
-                <li className="px-4 py-6 text-center font-mono text-sm text-muted">No matches.</li>
+                <li className="px-4 py-6 text-center text-sm text-muted">No matches.</li>
               ) : null}
               {results.map((cmd, i) => {
                 const showGroup = cmd.group !== lastGroup

@@ -24,17 +24,20 @@ export default function ReadoutStrip({ items, size = 'md', label = 'Measured res
           : size === 'md' && long
             ? 'grid-cols-2'
             : 'grid-cols-2 lg:grid-cols-4'
+  // Large readout numerals; long strings step down so nothing wraps inside a cell.
   const valueSize =
     size === 'sm'
-      ? 'text-xl md:text-2xl'
+      ? long
+        ? 'text-xl md:text-[1.375rem] md:leading-7'
+        : 'text-2xl md:text-3xl'
       : long
-        ? 'text-xl md:text-2xl'
-        : 'text-2xl md:text-[2rem] md:leading-9'
+        ? 'text-lg sm:text-xl md:text-2xl'
+        : 'text-3xl md:text-[2.5rem] md:leading-[2.75rem]'
 
   return (
     <dl className={`grid-cells ${cols}`} aria-label={label}>
       {items.map((item) => (
-        <div key={item.label} className="grid-cell flex min-w-0 flex-col-reverse gap-1.5 p-4 md:p-5">
+        <div key={item.label} className="grid-cell flex min-w-0 flex-col-reverse gap-2 p-4 md:p-5">
           <dt className="label leading-4">{item.label}</dt>
           <dd className={`readout-value break-words ${valueSize} text-accent`}>{item.value}</dd>
         </div>

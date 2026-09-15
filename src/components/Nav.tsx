@@ -33,7 +33,7 @@ export default function Nav() {
   return (
     <nav className="sticky top-0 z-50 border-b border-line bg-bg/95 backdrop-blur-[2px]" aria-label="Primary">
       <div className="mx-auto flex h-14 max-w-page items-center justify-between px-5 sm:px-8">
-        <a href="#top" className="label link-slide !text-fg">
+        <a href="#top" className="link-slide font-display text-sm font-medium tracking-tight text-fg">
           {facts.person.name}
         </a>
 
@@ -41,7 +41,7 @@ export default function Nav() {
           <ul className="flex items-center gap-5">
             {links.map((l) => (
               <li key={l.href}>
-                <a href={l.href} className="link-slide font-mono text-[0.8125rem] text-muted hover:text-fg">
+                <a href={l.href} className="link-slide text-sm text-muted hover:text-fg">
                   {l.label}
                 </a>
               </li>
@@ -51,14 +51,14 @@ export default function Nav() {
           <a
             href={facts.person.resumePath}
             download="Katyayani_Upadhyay_Resume.pdf"
-            className="link-slide font-mono text-[0.8125rem] text-muted hover:text-fg"
+            className="link-slide text-sm text-muted hover:text-fg"
           >
             Resume
           </a>
           <button
             type="button"
             onClick={openPalette}
-            className="flex h-8 items-center gap-2 rounded-[3px] border border-line bg-raised px-2.5 font-mono text-[0.75rem] text-muted transition-colors hover:border-fg hover:text-fg"
+            className="flex h-8 items-center gap-2 rounded-[3px] border border-line bg-raised px-2.5 text-xs text-muted transition-colors hover:border-fg hover:text-fg"
             aria-label={`Command palette, ${shortcut}`}
           >
             <Search size={14} />
@@ -94,7 +94,7 @@ export default function Nav() {
           <ul className="mx-auto max-w-page px-5 py-2 sm:px-8">
             {links.map((l) => (
               <li key={l.href}>
-                <a href={l.href} onClick={() => setOpen(false)} className="block py-3 font-mono text-sm text-fg">
+                <a href={l.href} onClick={() => setOpen(false)} className="block py-3 text-base text-fg">
                   {l.label}
                 </a>
               </li>
@@ -104,7 +104,7 @@ export default function Nav() {
                 href={facts.person.resumePath}
                 download="Katyayani_Upadhyay_Resume.pdf"
                 onClick={() => setOpen(false)}
-                className="block py-3 font-mono text-sm text-fg"
+                className="block py-3 text-base text-fg"
               >
                 Resume
               </a>

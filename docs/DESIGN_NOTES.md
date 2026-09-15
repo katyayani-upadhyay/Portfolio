@@ -238,3 +238,65 @@ manually against the live endpoint.
   1440 and 390 px in both themes: no horizontal overflow, console clean.
 - 2026-09-15: Five-cell readout strips now sit 3 over 2 so no cell is left empty
   and numerals stay on one line in the narrower project column.
+
+---
+
+# Revision 3 (2026-09-15): art direction pass on the hero
+
+## 14. Hero rhythm
+
+The hero is now a single composed block: eyebrow, name (60–68 px at desktop, one
+line), tagline, positioning, two buttons, link row on the left; instrument panel
+and the agent-loop schematic on the right. Height is
+`min(100svh − 12rem, 46rem)` at `md` and up, so at 1440×900 the block owns the
+viewport and the "01 Flagship projects" heading peeks above the fold as the scroll
+cue, while very tall or portrait screens never get a stretched hero. Below `md`
+the hero is content-height.
+
+## 15. Instrument panel
+
+Five rows, right-aligned mono values, `white-space: nowrap`, hairline dividers,
+a 2 px accent tick on the active row (Status). Every value is derived from
+`facts.json`: Status "Open to AI/ML & DS roles — 2026", Now "AI Engineer Intern @
+GobbleCube", Degree "B.Tech CS · CGPA 8.56", Projects "3 flagship, live", Eval
+"60-row eval — gate PASS". Rows repeating the eyebrow or tagline were removed.
+Keys are one word so nothing wraps at 390 px.
+
+## 16. Signature visual
+
+`AgentLoop.tsx`: an inline SVG (440×150 viewBox) of the Copilot's decide → act →
+reflect cycle. Hairline 1 px strokes in the muted colour, arrowheads via a
+marker, mono 9 px sub-labels, grotesk node names. The return path passes through
+a diamond guardrail node, the single use of the accent, captioned
+"guardrail · cite or refuse". Paths draw in with `pathLength` over ~1.8 s on
+mount; nodes fade. Under `prefers-reduced-motion` everything renders static.
+Hidden below `sm` where the labels would be illegible.
+
+## 17. Font discipline
+
+Grotesk (Schibsted) for nav, wordmark, buttons, headings, prose, chat UI text,
+palette results. Mono (Plex) only for labels, numbers, timestamps, section
+indices, chips, and panel values. Buttons: primary is solid accent
+(`#1d4ed8` / `#7aa2ff`, ink 6.7:1 / 7.5:1) inverting to ink on hover; secondary
+is a quiet keyline.
+
+## 18. Accent and dark mode
+
+Accent appears on section indices, link underline-slides, readout numerals, the
+panel tick, the guardrail node, and primary buttons. Dark mode text lifted one
+step: `--fg #eef0f3` (16.3:1), `--fg-muted #aab3bd` (8.8:1 on bg, 8.2:1 on
+raised). Dark grid alpha raised from 0.035 to 0.06 so the texture is just
+visible.
+
+## 19. Density
+
+Section padding 64/96 → 48/64 px, header gap 40/48 → 32/40, project rows 24 → 20
+apart, experience rows 40 → 32. Readout numerals are large: 40 px at desktop for
+short values, stepping down for long strings so no cell wraps.
+
+## 20. Log
+
+- 2026-09-15: Revision 3 shipped. Lighthouse (production preview): desktop
+  100/100/100/100, mobile 95/100/100/100; LCP 0.6 s / 2.6 s; TBT 0 / 10 ms;
+  CLS 0. Headless checks at 1440×900 and 390×844 in both themes: no overflow,
+  console clean, panel values on one line, next section visible above the fold.

@@ -9,7 +9,7 @@ import Section from './Section'
 function ProjectRow({ project }: { project: Project }) {
   return (
     <Reveal as="article" className="panel panel-hover" aria-labelledby={`${project.id}-title`}>
-      <div className="grid gap-8 p-6 md:p-8 lg:grid-cols-12 lg:gap-12">
+      <div className="grid gap-7 p-6 md:p-7 lg:grid-cols-12 lg:gap-12">
         <div className="lg:col-span-4">
           <p className="label flex items-center gap-3">
             <span className="text-accent">{project.index}</span>
@@ -61,7 +61,7 @@ function ProjectRow({ project }: { project: Project }) {
 export default function Projects() {
   return (
     <Section id="projects" index="01" title="Flagship projects" note="Three systems. Measured, not marketed.">
-      <div className="space-y-6">
+      <div className="space-y-5">
         {facts.projects.map((p) => (
           <ProjectRow key={p.id} project={p} />
         ))}

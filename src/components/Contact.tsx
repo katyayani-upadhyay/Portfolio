@@ -39,7 +39,7 @@ export default function Contact() {
                   href={href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-3 px-4 py-4 font-mono text-sm text-fg transition-colors hover:text-accent"
+                  className="link-slide flex items-center gap-3 px-4 py-4 text-sm text-fg transition-colors hover:text-accent"
                 >
                   <Icon size={14} aria-hidden="true" />
                   {label}

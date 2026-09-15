@@ -8,9 +8,9 @@ export default function Experience() {
     <Section id="experience" index="02" title="Experience" note="Reverse chronological">
       <ol className="divide-y divide-line">
         {facts.experience.map((e) => (
-          <Reveal as="li" key={`${e.company}-${e.period}`} className="grid gap-6 py-10 md:grid-cols-12 md:gap-8">
+          <Reveal as="li" key={`${e.company}-${e.period}`} className="grid gap-6 py-8 md:grid-cols-12 md:gap-8">
             <div className="md:col-span-3">
-              <p className="font-mono text-sm text-fg">{e.period}</p>
+              <p className="font-mono text-[0.8125rem] text-fg">{e.period}</p>
               <p className="label mt-1">{e.location}</p>
             </div>
             <div className="md:col-span-9">

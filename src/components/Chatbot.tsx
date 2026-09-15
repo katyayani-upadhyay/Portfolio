@@ -103,10 +103,10 @@ export default function Chatbot() {
           >
             <header className="flex items-start justify-between gap-3 border-b border-line px-4 py-3">
               <div>
-                <h2 id={titleId} className="font-mono text-sm text-fg">
+                <h2 id={titleId} className="font-display text-sm font-medium text-fg">
                   Ask about Katyayani
                 </h2>
-                <p className="label mt-1 normal-case tracking-normal">
+                <p className="mt-1 text-xs leading-5 text-muted">
                   Answers about Katyayani come only from the facts on this page. General questions are welcome too.
                 </p>
               </div>
@@ -136,7 +136,7 @@ export default function Chatbot() {
                         <button
                           type="button"
                           onClick={() => void send(s.text)}
-                          className="w-full rounded-[3px] border border-line px-3 py-2 text-left font-mono text-[0.8125rem] leading-5 text-fg transition-colors hover:border-fg"
+                          className="w-full rounded-[3px] border border-line px-3 py-2 text-left text-sm leading-5 text-fg transition-colors hover:border-fg"
                         >
                           <span className="label mr-2 text-accent">{s.kind}</span>
                           {s.text}
@@ -152,8 +152,8 @@ export default function Chatbot() {
                   <p
                     className={
                       msg.role === 'user'
-                        ? 'max-w-[85%] bg-fg px-3 py-2 font-mono text-[0.8125rem] leading-5 text-bg'
-                        : 'max-w-[92%] border border-line px-3 py-2 text-[0.875rem] leading-relaxed text-fg'
+                        ? 'max-w-[85%] rounded-[3px] bg-fg px-3 py-2 text-sm leading-5 text-bg'
+                        : 'max-w-[92%] rounded-[3px] border border-line px-3 py-2 text-sm leading-relaxed text-fg'
                     }
                   >
                     {msg.text}
@@ -182,13 +182,13 @@ export default function Chatbot() {
                   placeholder="Ask about her projects, skills, or experience"
                   autoComplete="off"
                   disabled={busy}
-                  className="min-w-0 flex-1 bg-transparent px-2 py-2 font-mono text-[0.8125rem] text-fg placeholder:text-muted focus:outline-none disabled:opacity-60"
+                  className="min-w-0 flex-1 bg-transparent px-2 py-2 text-sm text-fg placeholder:text-muted focus:outline-none disabled:opacity-60"
                 />
                 <button
                   type="submit"
                   disabled={busy || !input.trim()}
                   aria-label="Send"
-                  className="flex h-9 w-9 shrink-0 items-center justify-center bg-fg text-bg transition-colors hover:bg-accent hover:text-accent-ink disabled:opacity-40"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[3px] bg-accent text-accent-ink transition-colors hover:bg-fg hover:text-bg disabled:opacity-40"
                 >
                   <Send />
                 </button>
