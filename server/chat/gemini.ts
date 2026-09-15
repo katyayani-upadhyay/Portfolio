@@ -41,7 +41,7 @@ export async function askGemini(opts: GeminiOptions): Promise<string | null> {
     message,
     fetchImpl = fetch,
     baseUrl = 'https://generativelanguage.googleapis.com/v1beta',
-    timeoutMs = 20_000,
+    timeoutMs = 9_000,
   } = opts
 
   const controller = new AbortController()

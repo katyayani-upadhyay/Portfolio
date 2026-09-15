@@ -399,7 +399,7 @@ async function askGemini(opts) {
     message,
     fetchImpl = fetch,
     baseUrl = "https://generativelanguage.googleapis.com/v1beta",
-    timeoutMs = 2e4
+    timeoutMs = 9e3
   } = opts;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
@@ -437,6 +437,7 @@ async function askGemini(opts) {
 // server/chat/prompt.ts
 var NOT_SHARED = "Katyayani hasn't shared that here. For anything not on this page, reach her through the contact links: katyayani1612@gmail.com or LinkedIn.";
 var RESTING_MESSAGE = "The assistant is resting \u2014 meanwhile, everything about Katyayani is on this page.";
+var PAUSE_MESSAGE = "One moment \u2014 a quick pause between questions, then ask away.";
 function buildSystemPrompt(factsText2) {
   return [
     "You are the assistant on Katyayani Upadhyay's portfolio website. Visitors are usually recruiters, hiring managers, and engineers.",
@@ -462,32 +463,37 @@ function buildSystemPrompt(factsText2) {
 }
 
 // server/chat/rateLimit.ts
-var SlidingWindowLimiter = class {
-  constructor(limit, windowMs, now = Date.now) {
-    this.limit = limit;
-    this.windowMs = windowMs;
+var TokenBucketLimiter = class {
+  constructor(perMinute, burst, now = Date.now) {
+    this.perMinute = perMinute;
+    this.burst = burst;
     this.now = now;
   }
-  hits = /* @__PURE__ */ new Map();
+  buckets = /* @__PURE__ */ new Map();
+  refillMs() {
+    return 6e4 / this.perMinute;
+  }
   check(key) {
     const t = this.now();
-    const floor = t - this.windowMs;
-    const recent = (this.hits.get(key) ?? []).filter((ts) => ts > floor);
-    if (recent.length >= this.limit) {
-      const retryAfterSeconds = Math.max(1, Math.ceil((recent[0] + this.windowMs - t) / 1e3));
-      this.hits.set(key, recent);
+    const b = this.buckets.get(key) ?? { tokens: this.burst, updated: t };
+    const refilled = Math.floor((t - b.updated) / this.refillMs());
+    if (refilled > 0) {
+      b.tokens = Math.min(this.burst, b.tokens + refilled);
+      b.updated += refilled * this.refillMs();
+    }
+    if (b.tokens <= 0) {
+      const retryAfterSeconds = Math.max(1, Math.ceil((b.updated + this.refillMs() - t) / 1e3));
+      this.buckets.set(key, b);
       return { allowed: false, retryAfterSeconds };
     }
-    recent.push(t);
-    this.hits.set(key, recent);
-    if (this.hits.size > 5e3) this.prune(floor);
+    b.tokens -= 1;
+    this.buckets.set(key, b);
+    if (this.buckets.size > 5e3) this.prune(t);
     return { allowed: true, retryAfterSeconds: 0 };
   }
-  prune(floor) {
-    for (const [key, stamps] of this.hits) {
-      const live = stamps.filter((ts) => ts > floor);
-      if (live.length === 0) this.hits.delete(key);
-      else this.hits.set(key, live);
+  prune(t) {
+    for (const [key, b] of this.buckets) {
+      if (t - b.updated > 10 * this.refillMs() && b.tokens >= this.burst) this.buckets.delete(key);
     }
   }
 };
@@ -547,6 +553,15 @@ async function readJson(request) {
 // server/chat/handler.ts
 var DEFAULT_MODEL = "gemini-3.5-flash-lite";
 var FALLBACK_MODEL = "gemini-flash-lite-latest";
+var RETRY_DELAY_MS = 700;
+function isTransient(err) {
+  if (err instanceof GeminiError) return err.status === 429 || err.status >= 500;
+  return err instanceof Error && err.name !== "GeminiError";
+}
+function describe(err) {
+  if (err instanceof GeminiError) return `upstream ${err.status}`;
+  return err instanceof Error ? `${err.name}: ${err.message}` : String(err);
+}
 function json(body, status = 200, extra = {}) {
   return new Response(JSON.stringify(body), {
     status,
@@ -559,18 +574,15 @@ function json(body, status = 200, extra = {}) {
 }
 function createChatHandler(deps = {}) {
   const env = deps.env ?? process.env;
-  const limiter = deps.limiter ?? new SlidingWindowLimiter(8, 6e4);
-  const budget = deps.budget ?? new DailyBudget(1500);
+  const limiter = deps.limiter ?? new TokenBucketLimiter(5, 6);
+  const budget = deps.budget ?? new DailyBudget(2e3);
+  const sleep = deps.sleep ?? ((ms) => new Promise((r) => setTimeout(r, ms)));
   const log = deps.log ?? ((msg) => console.error(msg));
   const systemPrompt = buildSystemPrompt(factsText);
   return async function POST(request) {
     const limit = limiter.check(clientKey(request));
     if (!limit.allowed) {
-      return json(
-        { reply: "One question at a time, please. Try again in a moment." },
-        429,
-        { "retry-after": String(limit.retryAfterSeconds) }
-      );
+      return json({ reply: PAUSE_MESSAGE, limited: true }, 429, { "retry-after": String(limit.retryAfterSeconds) });
     }
     const parsed = parseChatRequest(await readJson(request));
     if (!parsed.ok) {
@@ -585,17 +597,19 @@ function createChatHandler(deps = {}) {
       return json({ reply: RESTING_MESSAGE });
     }
     const models = [env.GEMINI_MODEL || DEFAULT_MODEL, FALLBACK_MODEL].filter((m, i, all) => all.indexOf(m) === i);
+    const ask = (model) => askGemini({ apiKey, model, systemPrompt, message: parsed.message, fetchImpl: deps.fetchImpl });
     try {
       let text = null;
       for (let i = 0; i < models.length; i++) {
         try {
-          text = await askGemini({
-            apiKey,
-            model: models[i],
-            systemPrompt,
-            message: parsed.message,
-            fetchImpl: deps.fetchImpl
-          });
+          try {
+            text = await ask(models[i]);
+          } catch (err) {
+            if (!isTransient(err)) throw err;
+            log(`chat: transient failure on ${models[i]} (${describe(err)}), retrying once`);
+            await sleep(RETRY_DELAY_MS);
+            text = await ask(models[i]);
+          }
           break;
         } catch (err) {
           const retirable = err instanceof GeminiError && err.status === 404 && i < models.length - 1;
@@ -655,7 +669,9 @@ function toNodeHandler(handler) {
 }
 
 // server/chat/entry.ts
+var maxDuration = 30;
 var entry_default = toNodeHandler(createChatHandler());
 export {
-  entry_default as default
+  entry_default as default,
+  maxDuration
 };

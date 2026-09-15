@@ -76,6 +76,10 @@ export default function Chatbot() {
     inputRef.current?.focus()
   }
 
+  // Chips stay available after answers so a visitor can keep tapping; asked ones drop out.
+  const asked = new Set(messages.filter((msg) => msg.role === 'user').map((msg) => msg.text))
+  const remaining = suggestions.filter((s) => !asked.has(s.text))
+
   function onSubmit(e: FormEvent) {
     e.preventDefault()
     void send(input)
@@ -127,26 +131,7 @@ export default function Chatbot() {
               aria-live="polite"
               aria-relevant="additions"
             >
-              {messages.length === 0 ? (
-                <div>
-                  <p className="label mb-3">Try one</p>
-                  <ul className="flex flex-col gap-2">
-                    {suggestions.map((s) => (
-                      <li key={s.text}>
-                        <button
-                          type="button"
-                          onClick={() => void send(s.text)}
-                          className="w-full rounded-[3px] border border-line px-3 py-2 text-left text-sm leading-5 text-fg transition-colors hover:border-fg"
-                        >
-                          <span className="label mr-2 text-accent">{s.kind}</span>
-                          {s.text}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ) : null}
-
+              {messages.length === 0 ? <p className="label mb-3">Try one</p> : null}
               {messages.map((msg) => (
                 <div key={msg.id} className={msg.role === 'user' ? 'flex justify-end' : 'flex justify-start'}>
                   <p
@@ -165,6 +150,23 @@ export default function Chatbot() {
                 <p className="label" aria-label="Assistant is thinking">
                   <span className={reduce ? '' : 'animate-pulse'}>Thinking</span>
                 </p>
+              ) : null}
+
+              {!busy && remaining.length > 0 ? (
+                <ul className={`flex flex-col gap-2 ${messages.length > 0 ? 'pt-2' : ''}`} aria-label="Suggested questions">
+                  {remaining.map((s) => (
+                    <li key={s.text}>
+                      <button
+                        type="button"
+                        onClick={() => void send(s.text)}
+                        className="w-full rounded-[3px] border border-line px-3 py-2 text-left text-sm leading-5 text-fg transition-colors hover:border-fg"
+                      >
+                        <span className="label mr-2 text-accent">{s.kind}</span>
+                        {s.text}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
               ) : null}
             </div>
 

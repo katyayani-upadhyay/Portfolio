@@ -106,8 +106,12 @@ it does not appear on the site.
 - Model defaults to `gemini-3.5-flash-lite` (was 2.5 until 2026-09-15, see log),
   overridable with `GEMINI_MODEL`; a 404 on the configured model retries once with
   the `gemini-flash-lite-latest` alias.
-- Guardrails: 500-char input cap, 220 max output tokens, temperature 0.2,
-  in-memory per-IP limiter (8 requests / minute), a soft per-instance daily cap.
+- Guardrails: 500-char input cap, 220 max output tokens, temperature 0.2, an
+  in-memory per-IP token bucket (5 requests/minute sustained, burst of 6), and a
+  soft per-instance daily cap of 2000. A tripped limiter returns HTTP 429 with the
+  distinct pause message; only real upstream failures return the resting message.
+  Transient upstream errors (429/5xx/network) are retried once after 700 ms; the
+  function declares `maxDuration = 30` so a slow call plus retry fits.
 - Any upstream failure returns the resting message. No error text leaves the
   function.
 - The widget ships four chips: three grounded questions and one off-topic
@@ -300,3 +304,11 @@ short values, stepping down for long strings so no cell wraps.
   100/100/100/100, mobile 95/100/100/100; LCP 0.6 s / 2.6 s; TBT 0 / 10 ms;
   CLS 0. Headless checks at 1440×900 and 390×844 in both themes: no overflow,
   console clean, panel values on one line, next section visible above the fold.
+- 2026-09-15: Follow-up investigation of "second reply rests": a live burst of six
+  questions in 25 s all succeeded, so none of the app limits trips for a normal
+  visitor. Because the old limiter already had its own message, a resting reply
+  can only mean an upstream failure or a timeout. Hardened anyway: token-bucket
+  limiter (5/min, burst 6) with a distinct pause message and `limited: true`
+  flag, one retry on transient upstream errors, 9 s per-attempt timeout with
+  `maxDuration = 30`, budget 2000/day/instance, and suggestion chips that stay
+  available after answers so follow-ups do not require a reload.

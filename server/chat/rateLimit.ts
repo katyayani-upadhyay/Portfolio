@@ -4,49 +4,61 @@ export interface LimitResult {
 }
 
 /**
- * Sliding-window limiter keyed by caller (IP). In-memory, so it is per
- * serverless instance; that is enough to blunt casual abuse and cost spikes.
+ * Token-bucket limiter keyed by caller (IP). A visitor may spend up to
+ * `burst` requests at once; tokens refill at `perMinute` per minute. A recruiter
+ * tapping every suggestion chip in quick succession stays well inside the
+ * bucket; a script hammering the endpoint drains it and waits.
+ * In-memory, so per serverless instance; that is enough to blunt casual abuse.
  */
-export class SlidingWindowLimiter {
-  private hits = new Map<string, number[]>()
+export class TokenBucketLimiter {
+  private buckets = new Map<string, { tokens: number; updated: number }>()
 
   constructor(
-    private readonly limit: number,
-    private readonly windowMs: number,
+    readonly perMinute: number,
+    readonly burst: number,
     private readonly now: () => number = Date.now,
   ) {}
 
+  private refillMs(): number {
+    return 60_000 / this.perMinute
+  }
+
   check(key: string): LimitResult {
     const t = this.now()
-    const floor = t - this.windowMs
-    const recent = (this.hits.get(key) ?? []).filter((ts) => ts > floor)
-    if (recent.length >= this.limit) {
-      const retryAfterSeconds = Math.max(1, Math.ceil((recent[0] + this.windowMs - t) / 1000))
-      this.hits.set(key, recent)
+    const b = this.buckets.get(key) ?? { tokens: this.burst, updated: t }
+    const refilled = Math.floor((t - b.updated) / this.refillMs())
+    if (refilled > 0) {
+      b.tokens = Math.min(this.burst, b.tokens + refilled)
+      b.updated += refilled * this.refillMs()
+    }
+    if (b.tokens <= 0) {
+      const retryAfterSeconds = Math.max(1, Math.ceil((b.updated + this.refillMs() - t) / 1000))
+      this.buckets.set(key, b)
       return { allowed: false, retryAfterSeconds }
     }
-    recent.push(t)
-    this.hits.set(key, recent)
-    if (this.hits.size > 5000) this.prune(floor)
+    b.tokens -= 1
+    this.buckets.set(key, b)
+    if (this.buckets.size > 5000) this.prune(t)
     return { allowed: true, retryAfterSeconds: 0 }
   }
 
-  private prune(floor: number) {
-    for (const [key, stamps] of this.hits) {
-      const live = stamps.filter((ts) => ts > floor)
-      if (live.length === 0) this.hits.delete(key)
-      else this.hits.set(key, live)
+  private prune(t: number) {
+    for (const [key, b] of this.buckets) {
+      if (t - b.updated > 10 * this.refillMs() && b.tokens >= this.burst) this.buckets.delete(key)
     }
   }
 }
 
-/** Soft per-instance daily cap so a runaway client cannot burn the free quota. */
+/**
+ * Soft per-instance daily cap so a runaway client cannot burn the free quota.
+ * Sized for hundreds of demo sessions a day, not for one.
+ */
 export class DailyBudget {
   private day = ''
   private used = 0
 
   constructor(
-    private readonly max: number,
+    readonly max: number,
     private readonly now: () => number = Date.now,
   ) {}
 

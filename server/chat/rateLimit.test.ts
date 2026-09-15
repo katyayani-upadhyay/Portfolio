@@ -1,23 +1,40 @@
 import { describe, expect, it } from 'vitest'
-import { clientKey, DailyBudget, SlidingWindowLimiter } from './rateLimit'
+import { clientKey, DailyBudget, TokenBucketLimiter } from './rateLimit'
 
-describe('SlidingWindowLimiter', () => {
-  it('allows up to the limit, then blocks until the window slides', () => {
+describe('TokenBucketLimiter', () => {
+  it('lets a visitor tap several chips in quick succession', () => {
     let t = 1_000_000
-    const limiter = new SlidingWindowLimiter(3, 60_000, () => t)
-    expect(limiter.check('ip').allowed).toBe(true)
-    expect(limiter.check('ip').allowed).toBe(true)
-    expect(limiter.check('ip').allowed).toBe(true)
+    const limiter = new TokenBucketLimiter(5, 6, () => t)
+    for (let i = 0; i < 3; i++) {
+      expect(limiter.check('ip').allowed).toBe(true)
+      t += 10_000 // three requests in 30 seconds
+    }
+  })
+
+  it('allows the full burst, then blocks with a retry-after until a token refills', () => {
+    let t = 0
+    const limiter = new TokenBucketLimiter(5, 6, () => t)
+    for (let i = 0; i < 6; i++) expect(limiter.check('ip').allowed).toBe(true)
     const blocked = limiter.check('ip')
     expect(blocked.allowed).toBe(false)
     expect(blocked.retryAfterSeconds).toBeGreaterThan(0)
-    expect(blocked.retryAfterSeconds).toBeLessThanOrEqual(60)
-    t += 60_001
+    expect(blocked.retryAfterSeconds).toBeLessThanOrEqual(12)
+    t += 12_000 // one token refills every 60s / 5
     expect(limiter.check('ip').allowed).toBe(true)
+    expect(limiter.check('ip').allowed).toBe(false)
+  })
+
+  it('refills back up to the burst capacity, never beyond', () => {
+    let t = 0
+    const limiter = new TokenBucketLimiter(5, 6, () => t)
+    for (let i = 0; i < 6; i++) limiter.check('ip')
+    t += 10 * 60_000
+    for (let i = 0; i < 6; i++) expect(limiter.check('ip').allowed).toBe(true)
+    expect(limiter.check('ip').allowed).toBe(false)
   })
 
   it('keeps callers independent', () => {
-    const limiter = new SlidingWindowLimiter(1, 60_000, () => 0)
+    const limiter = new TokenBucketLimiter(5, 1, () => 0)
     expect(limiter.check('a').allowed).toBe(true)
     expect(limiter.check('b').allowed).toBe(true)
     expect(limiter.check('a').allowed).toBe(false)

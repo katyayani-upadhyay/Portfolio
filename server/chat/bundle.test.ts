@@ -12,6 +12,7 @@ describe('api/chat.ts bundle', () => {
     const code = await bundleApi()
     expect(code).not.toMatch(/^\s*import\s/m)
     expect(code).toMatch(/export \{[^}]*as default[^}]*\}/)
+    expect(code).toMatch(/maxDuration/)
     expect(code).toContain('14,053')
     expect(code).toContain('The assistant is resting')
     expect(code).not.toMatch(/AIza[0-9A-Za-z_-]{20,}/)

@@ -1,7 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
 import { createChatHandler, DEFAULT_MODEL, FALLBACK_MODEL } from './handler'
+import { PAUSE_MESSAGE } from './prompt'
 import { NOT_SHARED, RESTING_MESSAGE } from './prompt'
-import { DailyBudget, SlidingWindowLimiter } from './rateLimit'
+import { DailyBudget, TokenBucketLimiter } from './rateLimit'
 
 function post(body: unknown, headers: Record<string, string> = {}) {
   return new Request('http://t/api/chat', {
@@ -16,6 +17,7 @@ function geminiReply(text: string) {
 }
 
 const silent = () => {}
+const noSleep = async () => {}
 
 describe('POST /api/chat', () => {
   it('returns the model reply and sends the grounding prompt upstream', async () => {
@@ -72,7 +74,7 @@ describe('POST /api/chat', () => {
   it('logs the upstream status and body detail server-side only', async () => {
     const logs: string[] = []
     const fetchImpl = vi.fn(async () => new Response('{"error":{"message":"Quota exceeded"}}', { status: 429 }))
-    const handler = createChatHandler({ env: { GEMINI_API_KEY: 'k' }, fetchImpl, log: (m) => logs.push(m) })
+    const handler = createChatHandler({ env: { GEMINI_API_KEY: 'k' }, fetchImpl, log: (m) => logs.push(m), sleep: noSleep })
     const res = await handler(post({ message: 'hi' }))
     expect(await res.text()).not.toContain('Quota')
     expect(logs.join('\n')).toMatch(/upstream 429: .*Quota exceeded/)
@@ -103,7 +105,7 @@ describe('POST /api/chat', () => {
   it('returns the resting message on quota exhaustion and upstream errors, never the raw error', async () => {
     for (const status of [429, 500, 503]) {
       const fetchImpl = vi.fn(async () => new Response('{"error":{"message":"Quota exceeded for metric"}}', { status }))
-      const handler = createChatHandler({ env: { GEMINI_API_KEY: 'k' }, fetchImpl, log: silent })
+      const handler = createChatHandler({ env: { GEMINI_API_KEY: 'k' }, fetchImpl, log: silent, sleep: noSleep })
       const res = await handler(post({ message: 'hi' }))
       expect(res.status).toBe(200)
       const text = await res.text()
@@ -116,7 +118,7 @@ describe('POST /api/chat', () => {
     const fetchImpl = vi.fn(async () => {
       throw new TypeError('fetch failed: ENOTFOUND')
     })
-    const handler = createChatHandler({ env: { GEMINI_API_KEY: 'k' }, fetchImpl, log: silent })
+    const handler = createChatHandler({ env: { GEMINI_API_KEY: 'k' }, fetchImpl, log: silent, sleep: noSleep })
     const res = await handler(post({ message: 'hi' }))
     const text = await res.text()
     expect(JSON.parse(text)).toEqual({ reply: RESTING_MESSAGE })
@@ -168,21 +170,69 @@ describe('POST /api/chat', () => {
     }
   })
 
-  it('rate limits per IP with a 429 and retry-after', async () => {
+  it('lets one visitor tap every chip in a row (burst), then pauses with a distinct message', async () => {
     const fetchImpl = vi.fn(async () => geminiReply('ok'))
+    let t = 0
     const handler = createChatHandler({
       env: { GEMINI_API_KEY: 'k' },
       fetchImpl,
-      limiter: new SlidingWindowLimiter(2, 60_000, () => 0),
+      limiter: new TokenBucketLimiter(5, 6, () => t),
       log: silent,
     })
     const ip = { 'x-forwarded-for': '203.0.113.5' }
-    expect((await handler(post({ message: 'a' }, ip))).status).toBe(200)
-    expect((await handler(post({ message: 'b' }, ip))).status).toBe(200)
-    const blocked = await handler(post({ message: 'c' }, ip))
+    for (let i = 0; i < 3; i++) {
+      expect((await handler(post({ message: `chip ${i}` }, ip))).status).toBe(200)
+      t += 10_000 // three chips in 30 seconds
+    }
+    // Now hammer without pausing: the bucket must run dry within the burst size.
+    let blocked: Response | null = null
+    let allowedInRun = 0
+    for (let i = 0; i < 10 && !blocked; i++) {
+      const res = await handler(post({ message: `rapid ${i}` }, ip))
+      if (res.status === 429) blocked = res
+      else allowedInRun += 1
+    }
+    expect(blocked).not.toBeNull()
+    if (!blocked) throw new Error('unreachable')
+    expect(allowedInRun).toBeGreaterThanOrEqual(3)
+    expect(allowedInRun).toBeLessThanOrEqual(6)
     expect(blocked.status).toBe(429)
     expect(blocked.headers.get('retry-after')).toBeTruthy()
-    expect((await handler(post({ message: 'd' }, { 'x-forwarded-for': '203.0.113.6' }))).status).toBe(200)
+    const body = await blocked.json()
+    expect(body.reply).toBe(PAUSE_MESSAGE)
+    expect(body.limited).toBe(true)
+    expect(body.reply).not.toBe(RESTING_MESSAGE)
+    expect((await handler(post({ message: 'other visitor' }, { 'x-forwarded-for': '203.0.113.6' }))).status).toBe(200)
+  })
+
+  it('retries once on a transient upstream error and then succeeds', async () => {
+    let calls = 0
+    const fetchImpl = vi.fn(async () => {
+      calls += 1
+      return calls === 1 ? new Response('{"error":{"message":"overloaded"}}', { status: 503 }) : geminiReply('second try')
+    })
+    const logs: string[] = []
+    const handler = createChatHandler({ env: { GEMINI_API_KEY: 'k' }, fetchImpl, log: (m) => logs.push(m), sleep: noSleep })
+    const res = await handler(post({ message: 'hi' }))
+    expect(await res.json()).toEqual({ reply: 'second try' })
+    expect(fetchImpl).toHaveBeenCalledTimes(2)
+    expect(logs.some((l) => l.includes('transient'))).toBe(true)
+  })
+
+  it('retries once on a per-minute quota 429 from Gemini, then rests if it persists', async () => {
+    const fetchImpl = vi.fn(async () => new Response('{"error":{"message":"Quota exceeded"}}', { status: 429 }))
+    const handler = createChatHandler({ env: { GEMINI_API_KEY: 'k' }, fetchImpl, log: silent, sleep: noSleep })
+    const res = await handler(post({ message: 'hi' }))
+    expect(res.status).toBe(200)
+    expect(await res.json()).toEqual({ reply: RESTING_MESSAGE })
+    expect(fetchImpl).toHaveBeenCalledTimes(2)
+  })
+
+  it('does not retry on a 400 from upstream', async () => {
+    const fetchImpl = vi.fn(async () => new Response('{"error":{"message":"bad request"}}', { status: 400 }))
+    const handler = createChatHandler({ env: { GEMINI_API_KEY: 'k' }, fetchImpl, log: silent, sleep: noSleep })
+    await handler(post({ message: 'hi' }))
+    expect(fetchImpl).toHaveBeenCalledTimes(1)
   })
 
   it('stops calling upstream once the daily budget is spent', async () => {

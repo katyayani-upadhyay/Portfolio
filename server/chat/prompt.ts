@@ -2,8 +2,12 @@
 export const NOT_SHARED =
   "Katyayani hasn't shared that here. For anything not on this page, reach her through the contact links: katyayani1612@gmail.com or LinkedIn."
 
+/** Real outage or exhausted quota. */
 export const RESTING_MESSAGE =
   'The assistant is resting — meanwhile, everything about Katyayani is on this page.'
+
+/** Per-visitor rate limit tripped. Deliberately distinct from the resting message. */
+export const PAUSE_MESSAGE = 'One moment — a quick pause between questions, then ask away.'
 
 /**
  * System prompt for the portfolio assistant. `factsText` is generated from

@@ -62,10 +62,12 @@ The hard rule is that nothing about me may be fabricated or embellished; every
 personal claim must trace to `facts.json`.
 
 Cost and abuse controls: 500-character input cap, low output-token limit, low
-temperature, an in-memory per-IP rate limit, and a soft daily budget per instance. If
-the upstream call fails or the free quota is exhausted, the visitor sees
-"The assistant is resting — meanwhile, everything about Katyayani is on this page."
-No raw errors ever reach the browser.
+temperature, an in-memory per-IP token bucket (5 a minute with a burst of 6, so tapping
+every chip is fine), and a soft daily budget per instance. A tripped limit answers
+"One moment — a quick pause between questions, then ask away." Transient upstream
+errors are retried once; if the call still fails or the free quota is exhausted, the
+visitor sees "The assistant is resting — meanwhile, everything about Katyayani is on
+this page." No raw errors ever reach the browser.
 
 The implementation is in `server/chat/` (validation, rate limiting, prompt, Gemini
 client, handler, Node adapter) and is fully tested with an injected `fetch`.
