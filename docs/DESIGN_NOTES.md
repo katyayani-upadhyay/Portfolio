@@ -103,7 +103,9 @@ it does not appear on the site.
   invocation on Vercel; shipping one self-contained file removes every
   builder-specific failure mode. `server/chat/bundle.test.ts` fails if the
   committed bundle drifts from the source.
-- Model defaults to `gemini-2.5-flash-lite`, overridable with `GEMINI_MODEL`.
+- Model defaults to `gemini-3.5-flash-lite` (was 2.5 until 2026-09-15, see log),
+  overridable with `GEMINI_MODEL`; a 404 on the configured model retries once with
+  the `gemini-flash-lite-latest` alias.
 - Guardrails: 500-char input cap, 220 max output tokens, temperature 0.2,
   in-memory per-IP limiter (8 requests / minute), a soft per-instance daily cap.
 - Any upstream failure returns the resting message. No error text leaves the
@@ -219,6 +221,12 @@ sweep, and the fallback. Lane routing itself is model behaviour and is checked
 manually against the live endpoint.
 
 ## 13. Log
+
+- 2026-09-15: Root cause of the resting message with a valid key: Google returns
+  404 `NOT_FOUND` for `gemini-2.5-flash-lite` ("no longer available to new users")
+  while ListModels still advertises it. The handler swallowed the 404 into the
+  resting fallback. Fixed by pinning `gemini-3.5-flash-lite`, retrying once on 404
+  with the rolling alias, and logging upstream status + body server-side.
 
 - 2026-09-15: Copilot facts updated to the 60-row eval results; tests assert the
   30-row numbers are gone everywhere, including the bundled prompt.

@@ -12,6 +12,8 @@ export class GeminiError extends Error {
   constructor(
     message: string,
     readonly status: number,
+    /** First few hundred chars of the upstream body, for server logs only. */
+    readonly detail = '',
   ) {
     super(message)
     this.name = 'GeminiError'
@@ -64,7 +66,8 @@ export async function askGemini(opts: GeminiOptions): Promise<string | null> {
     })
 
     if (!res.ok) {
-      throw new GeminiError(`upstream ${res.status}`, res.status)
+      const detail = (await res.text().catch(() => '')).slice(0, 400)
+      throw new GeminiError(`upstream ${res.status}`, res.status, detail)
     }
 
     const data = (await res.json()) as GeminiResponse

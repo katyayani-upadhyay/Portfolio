@@ -12,7 +12,13 @@ export interface HandlerDeps {
   log?: (msg: string) => void
 }
 
-const DEFAULT_MODEL = 'gemini-2.5-flash-lite'
+/**
+ * Flash-lite class model. Google retires pinned versions for new keys (2.5 returned
+ * 404 "no longer available to new users" in Sept 2026), so a 404 on the configured
+ * model falls back once to the rolling alias.
+ */
+export const DEFAULT_MODEL = 'gemini-3.5-flash-lite'
+export const FALLBACK_MODEL = 'gemini-flash-lite-latest'
 
 function json(body: Record<string, unknown>, status = 200, extra: Record<string, string> = {}): Response {
   return new Response(JSON.stringify(body), {
@@ -63,19 +69,34 @@ export function createChatHandler(deps: HandlerDeps = {}) {
       return json({ reply: RESTING_MESSAGE })
     }
 
+    const models = [env.GEMINI_MODEL || DEFAULT_MODEL, FALLBACK_MODEL].filter((m, i, all) => all.indexOf(m) === i)
     try {
-      const text = await askGemini({
-        apiKey,
-        model: env.GEMINI_MODEL || DEFAULT_MODEL,
-        systemPrompt,
-        message: parsed.message,
-        fetchImpl: deps.fetchImpl,
-      })
+      let text: string | null = null
+      for (let i = 0; i < models.length; i++) {
+        try {
+          text = await askGemini({
+            apiKey,
+            model: models[i],
+            systemPrompt,
+            message: parsed.message,
+            fetchImpl: deps.fetchImpl,
+          })
+          break
+        } catch (err) {
+          const retirable = err instanceof GeminiError && err.status === 404 && i < models.length - 1
+          if (!retirable) throw err
+          log(`chat: model ${models[i]} returned 404, retrying with ${models[i + 1]}`)
+        }
+      }
       // A blocked or empty completion is treated as "not shared" rather than guessed at.
       return json({ reply: text ?? NOT_SHARED })
     } catch (err) {
-      const status = err instanceof GeminiError ? err.status : 0
-      log(`chat: upstream failure (${status || 'network'})`)
+      // Server logs only; the client always gets the resting message.
+      if (err instanceof GeminiError) {
+        log(`chat: upstream ${err.status}: ${err.detail || '(no body)'}`)
+      } else {
+        log(`chat: request failed: ${err instanceof Error ? `${err.name}: ${err.message}` : String(err)}`)
+      }
       return json({ reply: RESTING_MESSAGE })
     }
   }

@@ -384,9 +384,10 @@ var factsText = factsToText(facts);
 
 // server/chat/gemini.ts
 var GeminiError = class extends Error {
-  constructor(message, status) {
+  constructor(message, status, detail = "") {
     super(message);
     this.status = status;
+    this.detail = detail;
     this.name = "GeminiError";
   }
 };
@@ -421,7 +422,8 @@ async function askGemini(opts) {
       signal: controller.signal
     });
     if (!res.ok) {
-      throw new GeminiError(`upstream ${res.status}`, res.status);
+      const detail = (await res.text().catch(() => "")).slice(0, 400);
+      throw new GeminiError(`upstream ${res.status}`, res.status, detail);
     }
     const data = await res.json();
     if (data.promptFeedback?.blockReason) return null;
@@ -543,7 +545,8 @@ async function readJson(request) {
 }
 
 // server/chat/handler.ts
-var DEFAULT_MODEL = "gemini-2.5-flash-lite";
+var DEFAULT_MODEL = "gemini-3.5-flash-lite";
+var FALLBACK_MODEL = "gemini-flash-lite-latest";
 function json(body, status = 200, extra = {}) {
   return new Response(JSON.stringify(body), {
     status,
@@ -581,18 +584,32 @@ function createChatHandler(deps = {}) {
     if (!budget.take()) {
       return json({ reply: RESTING_MESSAGE });
     }
+    const models = [env.GEMINI_MODEL || DEFAULT_MODEL, FALLBACK_MODEL].filter((m, i, all) => all.indexOf(m) === i);
     try {
-      const text = await askGemini({
-        apiKey,
-        model: env.GEMINI_MODEL || DEFAULT_MODEL,
-        systemPrompt,
-        message: parsed.message,
-        fetchImpl: deps.fetchImpl
-      });
+      let text = null;
+      for (let i = 0; i < models.length; i++) {
+        try {
+          text = await askGemini({
+            apiKey,
+            model: models[i],
+            systemPrompt,
+            message: parsed.message,
+            fetchImpl: deps.fetchImpl
+          });
+          break;
+        } catch (err) {
+          const retirable = err instanceof GeminiError && err.status === 404 && i < models.length - 1;
+          if (!retirable) throw err;
+          log(`chat: model ${models[i]} returned 404, retrying with ${models[i + 1]}`);
+        }
+      }
       return json({ reply: text ?? NOT_SHARED });
     } catch (err) {
-      const status = err instanceof GeminiError ? err.status : 0;
-      log(`chat: upstream failure (${status || "network"})`);
+      if (err instanceof GeminiError) {
+        log(`chat: upstream ${err.status}: ${err.detail || "(no body)"}`);
+      } else {
+        log(`chat: request failed: ${err instanceof Error ? `${err.name}: ${err.message}` : String(err)}`);
+      }
       return json({ reply: RESTING_MESSAGE });
     }
   };

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { createChatHandler } from './handler'
+import { createChatHandler, DEFAULT_MODEL, FALLBACK_MODEL } from './handler'
 import { NOT_SHARED, RESTING_MESSAGE } from './prompt'
 import { DailyBudget, SlidingWindowLimiter } from './rateLimit'
 
@@ -33,7 +33,8 @@ describe('POST /api/chat', () => {
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual({ reply: 'She built an agentic RAG assistant.' })
     const [url, init] = fetchImpl.mock.calls[0]
-    expect(String(url)).toContain('gemini-2.5-flash-lite:generateContent')
+    expect(String(url)).toContain(`${DEFAULT_MODEL}:generateContent`)
+    expect(DEFAULT_MODEL).toBe('gemini-3.5-flash-lite')
     expect(new Headers(init?.headers).get('x-goog-api-key')).toBe('test-key')
   })
 
@@ -42,6 +43,39 @@ describe('POST /api/chat', () => {
     const handler = createChatHandler({ env: { GEMINI_API_KEY: 'k', GEMINI_MODEL: 'gemini-x' }, fetchImpl, log: silent })
     await handler(post({ message: 'hi' }))
     expect(String(fetchImpl.mock.calls[0][0])).toContain('/models/gemini-x:generateContent')
+  })
+
+  it('falls back to the rolling alias once when the pinned model returns 404', async () => {
+    const notFound = JSON.stringify({ error: { code: 404, message: 'no longer available to new users', status: 'NOT_FOUND' } })
+    const fetchImpl = vi.fn(async (url: RequestInfo | URL) =>
+      String(url).includes(`${DEFAULT_MODEL}:`) ? new Response(notFound, { status: 404 }) : geminiReply('via alias'),
+    )
+    const logs: string[] = []
+    const handler = createChatHandler({ env: { GEMINI_API_KEY: 'k' }, fetchImpl, log: (m) => logs.push(m) })
+    const res = await handler(post({ message: 'hi' }))
+    expect(await res.json()).toEqual({ reply: 'via alias' })
+    expect(fetchImpl).toHaveBeenCalledTimes(2)
+    expect(String(fetchImpl.mock.calls[1][0])).toContain(`${FALLBACK_MODEL}:generateContent`)
+    expect(logs.some((l) => l.includes('retrying'))).toBe(true)
+  })
+
+  it('does not retry past the fallback on 404, and never leaks the body', async () => {
+    const fetchImpl = vi.fn(async () => new Response('{"error":{"message":"gone for good"}}', { status: 404 }))
+    const handler = createChatHandler({ env: { GEMINI_API_KEY: 'k' }, fetchImpl, log: silent })
+    const res = await handler(post({ message: 'hi' }))
+    const text = await res.text()
+    expect(JSON.parse(text)).toEqual({ reply: RESTING_MESSAGE })
+    expect(text).not.toContain('gone for good')
+    expect(fetchImpl).toHaveBeenCalledTimes(2)
+  })
+
+  it('logs the upstream status and body detail server-side only', async () => {
+    const logs: string[] = []
+    const fetchImpl = vi.fn(async () => new Response('{"error":{"message":"Quota exceeded"}}', { status: 429 }))
+    const handler = createChatHandler({ env: { GEMINI_API_KEY: 'k' }, fetchImpl, log: (m) => logs.push(m) })
+    const res = await handler(post({ message: 'hi' }))
+    expect(await res.text()).not.toContain('Quota')
+    expect(logs.join('\n')).toMatch(/upstream 429: .*Quota exceeded/)
   })
 
   it('rejects invalid input with 400 and a friendly message', async () => {

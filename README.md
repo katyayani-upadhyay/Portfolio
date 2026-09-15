@@ -47,8 +47,9 @@ prompt text verbatim.
 ## The assistant ("Ask about Katyayani")
 
 A floating widget, bottom-right, collapsed by default. It sends the visitor's question
-to `POST /api/chat`, a Vercel function that calls Gemini (`gemini-2.5-flash-lite` by
-default) with a system prompt built from the facts file. The prompt defines three lanes:
+to `POST /api/chat`, a Vercel function that calls Gemini (`gemini-3.5-flash-lite` by
+default, falling back once to `gemini-flash-lite-latest` if Google retires the pinned
+model) with a system prompt built from the facts file. The prompt defines three lanes:
 
 - **About me, covered by the facts** — a specific answer in the third person, two to
   four sentences, numbers and links exactly as written.
