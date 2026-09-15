@@ -32,10 +32,22 @@
         "Drove schema drift to 0 via a Pydantic validation gate and a 12-rule canonicalisation engine (161/161 tests)."
       ],
       "readouts": [
-        { "value": "14,053", "label": "SKUs spanned" },
-        { "value": "1,064", "label": "review decisions, launch day" },
-        { "value": "~240K", "label": "records recovered (~27%)" },
-        { "value": "161/161", "label": "tests passing" }
+        {
+          "value": "14,053",
+          "label": "SKUs spanned"
+        },
+        {
+          "value": "1,064",
+          "label": "review decisions, launch day"
+        },
+        {
+          "value": "~240K",
+          "label": "records recovered (~27%)"
+        },
+        {
+          "value": "161/161",
+          "label": "tests passing"
+        }
       ]
     },
     {
@@ -49,10 +61,22 @@
         "Built a multi-agent research assistant (LangGraph, RAG, Groq, FastAPI, Docker) over 20+ real-time web sources, cutting research-synthesis time 70%."
       ],
       "readouts": [
-        { "value": "80%+", "label": "speech-emotion accuracy" },
-        { "value": "50,000+", "label": "audio samples" },
-        { "value": "<200ms", "label": "inference latency" },
-        { "value": "70%", "label": "less research-synthesis time" }
+        {
+          "value": "80%+",
+          "label": "speech-emotion accuracy"
+        },
+        {
+          "value": "50,000+",
+          "label": "audio samples"
+        },
+        {
+          "value": "<200ms",
+          "label": "inference latency"
+        },
+        {
+          "value": "70%",
+          "label": "less research-synthesis time"
+        }
       ]
     }
   ],
@@ -62,15 +86,40 @@
       "index": "01",
       "name": "QuickCommerce Copilot",
       "kind": "Live agentic RAG assistant",
-      "problem": "A retrieval-only baseline could answer policy questions but could not act: on a 30-row stratified eval it reached 0% tool-call success and 50% citation coverage.",
-      "built": "An agentic RAG assistant combining policy retrieval with typed MCP tool calls, run through a decide–act–reflect LangGraph loop. Citation guardrails refuse rather than guess, a 3-provider LLM failover keeps it up, and a GitHub Actions eval gate blocks regressions. Ships with a React/TypeScript agent-trace UI. All demo data is synthetic.",
+      "problem": "A retrieval-only baseline could answer policy questions but could not act: on a 60-row stratified eval it reached 2/10 tool-call success and 56% citation coverage.",
+      "built": "An agentic RAG assistant combining policy retrieval with typed MCP tool calls, run through a decide–act–reflect LangGraph loop. Citation guardrails refuse rather than guess, a 3-provider LLM failover keeps it up, and a CI smoke gate in GitHub Actions enforces a PASS before anything ships. Ships with a React/TypeScript agent-trace UI. All demo data is synthetic.",
       "metrics": [
-        { "value": "0%→100%", "label": "tool-call success" },
-        { "value": "50%→100%", "label": "citation coverage" },
-        { "value": "0.99", "label": "RAGAS faithfulness" },
-        { "value": "30", "label": "row stratified eval" }
+        {
+          "value": "2/10 → 10/10",
+          "label": "tool-call success"
+        },
+        {
+          "value": "56% → 100%",
+          "label": "citation coverage"
+        },
+        {
+          "value": "0.95",
+          "label": "RAGAS faithfulness"
+        },
+        {
+          "value": "0",
+          "label": "hallucinated answers"
+        },
+        {
+          "value": "60",
+          "label": "row stratified eval"
+        }
       ],
-      "tech": ["LangGraph", "MCP", "RAGAS", "Agentic RAG", "LLM failover", "GitHub Actions", "React", "TypeScript"],
+      "tech": [
+        "LangGraph",
+        "MCP",
+        "RAGAS",
+        "Agentic RAG",
+        "LLM failover",
+        "GitHub Actions CI",
+        "React",
+        "TypeScript"
+      ],
       "github": "https://github.com/katyayani-upadhyay/quickcommerce-copilot",
       "live": "https://quickcommerce-copilot.onrender.com",
       "liveNote": "Live demo cold-starts in about a minute on the free tier."
@@ -83,13 +132,37 @@
       "problem": "Day-ahead electricity load forecasting and demand-response decisions on real OPSD Spain/Portugal hourly load, where the seasonal-naive baseline sits at 4.49% WAPE.",
       "built": "A LightGBM day-ahead forecaster over 15,335 hours, a dbt + DuckDB pipeline with data-quality tests in CI, a simulated demand-response A/B test (MDE 4.2%, SRM check, CUPED, ship/no-ship doc), and a difference-in-differences lockdown study that honestly reports a non-significant effect.",
       "metrics": [
-        { "value": "2.16%", "label": "WAPE vs 4.49% seasonal-naive" },
-        { "value": "52%", "label": "forecast error cut" },
-        { "value": "56/56", "label": "data-quality tests in CI" },
-        { "value": "94.7%", "label": "CUPED variance reduction" },
-        { "value": "−2.2%", "label": "DiD lockdown effect, non-significant" }
+        {
+          "value": "2.16%",
+          "label": "WAPE vs 4.49% seasonal-naive"
+        },
+        {
+          "value": "52%",
+          "label": "forecast error cut"
+        },
+        {
+          "value": "56/56",
+          "label": "data-quality tests in CI"
+        },
+        {
+          "value": "94.7%",
+          "label": "CUPED variance reduction"
+        },
+        {
+          "value": "−2.2%",
+          "label": "DiD lockdown effect, non-significant"
+        }
       ],
-      "tech": ["LightGBM", "dbt", "DuckDB", "A/B Testing", "CUPED", "Difference-in-Differences", "Streamlit", "OPSD data"],
+      "tech": [
+        "LightGBM",
+        "dbt",
+        "DuckDB",
+        "A/B Testing",
+        "CUPED",
+        "Difference-in-Differences",
+        "Streamlit",
+        "OPSD data"
+      ],
       "github": "https://github.com/katyayani-upadhyay/gridload-demand-experiments",
       "live": "https://gridload-demand-experiments.streamlit.app",
       "liveNote": null
@@ -102,10 +175,25 @@
       "problem": "Producing research reports that require synthesis across 20+ real-time web sources.",
       "built": "An autonomous multi-agent research system built on LangGraph with RAG and semantic retrieval, using Tavily for live web search, Groq and HuggingFace for inference and embeddings, served through FastAPI and packaged with Docker.",
       "metrics": [
-        { "value": "20+", "label": "real-time web sources" },
-        { "value": "70%", "label": "faster research synthesis" }
+        {
+          "value": "20+",
+          "label": "real-time web sources"
+        },
+        {
+          "value": "70%",
+          "label": "faster research synthesis"
+        }
       ],
-      "tech": ["LangGraph", "RAG", "Semantic retrieval", "Tavily", "Groq", "HuggingFace", "FastAPI", "Docker"],
+      "tech": [
+        "LangGraph",
+        "RAG",
+        "Semantic retrieval",
+        "Tavily",
+        "Groq",
+        "HuggingFace",
+        "FastAPI",
+        "Docker"
+      ],
       "github": "https://github.com/katyayani-upadhyay/Agentic-ai-research-platform",
       "live": "https://agentic-ai-research-platform.onrender.com",
       "liveNote": null
@@ -114,33 +202,109 @@
   "skills": [
     {
       "group": "GenAI & Agentic AI",
-      "items": ["Agentic RAG", "Multi-Agent Systems", "LangGraph", "MCP", "RAGAS", "Qdrant", "LLM Orchestration", "Prompt Engineering", "Guardrails", "HuggingFace Embeddings"]
+      "items": [
+        "Agentic RAG",
+        "Multi-Agent Systems",
+        "LangGraph",
+        "MCP",
+        "RAGAS",
+        "Qdrant",
+        "LLM Orchestration",
+        "Prompt Engineering",
+        "Guardrails",
+        "HuggingFace Embeddings"
+      ]
     },
     {
       "group": "Data Science & Statistics",
-      "items": ["Time-Series Forecasting", "A/B Testing", "Power Analysis & MDE", "SRM", "CUPED", "Difference-in-Differences", "Causal Inference", "EDA", "Feature Engineering"]
+      "items": [
+        "Time-Series Forecasting",
+        "A/B Testing",
+        "Power Analysis & MDE",
+        "SRM",
+        "CUPED",
+        "Difference-in-Differences",
+        "Causal Inference",
+        "EDA",
+        "Feature Engineering"
+      ]
     },
     {
       "group": "Data Engineering",
-      "items": ["SQL", "PostgreSQL", "dbt", "DuckDB", "ETL & Data Pipelines", "Data-Quality Testing", "Schema Design", "Pydantic"]
+      "items": [
+        "SQL",
+        "PostgreSQL",
+        "dbt",
+        "DuckDB",
+        "ETL & Data Pipelines",
+        "Data-Quality Testing",
+        "Schema Design",
+        "Pydantic"
+      ]
     },
     {
       "group": "AI/ML",
-      "items": ["Deep Learning", "CNNs", "Transfer Learning", "NLP", "LightGBM", "MLflow", "Hyperparameter Tuning"]
+      "items": [
+        "Deep Learning",
+        "CNNs",
+        "Transfer Learning",
+        "NLP",
+        "LightGBM",
+        "MLflow",
+        "Hyperparameter Tuning"
+      ]
     },
     {
       "group": "MLOps & Deployment",
-      "items": ["FastAPI", "Docker", "GitHub Actions CI/CD", "Automated Eval Gates", "Streamlit", "Render", "AWS EC2/RDS"]
+      "items": [
+        "FastAPI",
+        "Docker",
+        "GitHub Actions CI/CD",
+        "Automated Eval Gates",
+        "Streamlit",
+        "Render",
+        "AWS EC2/RDS"
+      ]
     },
     {
       "group": "Programming",
-      "items": ["Python", "SQL", "Java", "TypeScript", "React"]
+      "items": [
+        "Python",
+        "SQL",
+        "Java",
+        "TypeScript",
+        "React"
+      ]
     }
   ],
   "certifications": [
-    { "name": "Foundations of Deep Learning", "grade": "Elite", "institute": "IISc", "year": "2026", "provider": "NPTEL" },
-    { "name": "Python for Data Science", "grade": "Elite + Silver", "institute": "IIT Madras", "year": "2026", "provider": "NPTEL" },
-    { "name": "Introduction to Machine Learning", "grade": "Elite", "institute": "IIT Madras", "year": "2025", "provider": "NPTEL" },
-    { "name": "Programming in Java", "grade": "Elite + Silver", "institute": "IIT Kharagpur", "year": "2025", "provider": "NPTEL" }
+    {
+      "name": "Foundations of Deep Learning",
+      "grade": "Elite",
+      "institute": "IISc",
+      "year": "2026",
+      "provider": "NPTEL"
+    },
+    {
+      "name": "Python for Data Science",
+      "grade": "Elite + Silver",
+      "institute": "IIT Madras",
+      "year": "2026",
+      "provider": "NPTEL"
+    },
+    {
+      "name": "Introduction to Machine Learning",
+      "grade": "Elite",
+      "institute": "IIT Madras",
+      "year": "2025",
+      "provider": "NPTEL"
+    },
+    {
+      "name": "Programming in Java",
+      "grade": "Elite + Silver",
+      "institute": "IIT Kharagpur",
+      "year": "2025",
+      "provider": "NPTEL"
+    }
   ]
 }

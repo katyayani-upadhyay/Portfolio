@@ -11,7 +11,7 @@ interface ReadoutStripProps {
  * caption underneath, cells divided by hairlines.
  */
 export default function ReadoutStrip({ items, size = 'md', label = 'Measured results' }: ReadoutStripProps) {
-  // A four-cell strip with a long value (e.g. 50%→100%) drops to 2×2 so numerals keep one size.
+  // A strip with a long value (e.g. 56% → 100%) drops to 2 columns so numerals keep one size.
   const long = size === 'md' && items.some((item) => item.value.length >= 7)
   const cols =
     items.length <= 2

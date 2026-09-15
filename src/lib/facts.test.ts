@@ -22,6 +22,13 @@ describe('facts loader', () => {
     }
   })
 
+  it('carries no superseded 30-row Copilot numbers', () => {
+    const blob = JSON.stringify(facts)
+    for (const stale of ['0%→100%', '0% → 100%', '50%→100%', '50% → 100%', '0.99', '30-row']) {
+      expect(blob).not.toContain(stale)
+    }
+  })
+
   it('contains no internship-seeking language', () => {
     expect(facts.person.seeking.toLowerCase()).not.toContain('intern')
     expect(facts.person.positioning.toLowerCase()).not.toContain('intern')
@@ -63,9 +70,11 @@ describe('factsToText', () => {
       '80%+',
       '50,000+',
       'sub-200ms',
-      '0%→100%',
-      '50%→100%',
-      '0.99',
+      '2/10 → 10/10',
+      '56% → 100%',
+      '0.95',
+      '60-row stratified eval',
+      '0 hallucinated answers',
       '2.16%',
       '4.49%',
       '15,335',
