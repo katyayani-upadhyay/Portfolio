@@ -7,7 +7,7 @@ import AgentLoop from './AgentLoop'
 import { ArrowDown, Download, Mail } from './Icons'
 
 const { person, education, experience, projects } = facts
-const current = experience[0]
+const latest = experience[0]
 const copilot = projects[0]
 
 const socials = [
@@ -23,7 +23,7 @@ const socials = [
  */
 const panel = [
   { key: 'Status', value: 'Open to AI/ML & DS roles — 2026', active: true },
-  { key: 'Now', value: `${current.role} @ ${current.company}` },
+  { key: 'Latest', value: `${latest.role} @ ${latest.company}` },
   { key: 'Degree', value: `B.Tech CS · CGPA ${education.cgpa}` },
   { key: 'Projects', value: `${projects.length} flagship, live` },
   { key: 'Eval', value: `${copilot.metrics[4].value}-row eval — gate PASS` },

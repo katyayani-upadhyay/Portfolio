@@ -22,9 +22,12 @@ describe('facts loader', () => {
     }
   })
 
-  it('carries no superseded 30-row Copilot numbers', () => {
+  it('carries no superseded numbers or open-ended dates', () => {
     const blob = JSON.stringify(facts)
-    for (const stale of ['0%→100%', '0% → 100%', '50%→100%', '50% → 100%', '0.99', '30-row']) {
+    for (const stale of [
+      '0%→100%', '0% → 100%', '50%→100%', '50% → 100%', '0.99', '30-row', // Copilot 30-row eval
+      '1,064', '240K', '27%', 'launch day', 'Present', // GobbleCube audit corrections
+    ]) {
       expect(blob).not.toContain(stale)
     }
   })
@@ -64,8 +67,10 @@ describe('factsToText', () => {
   it('carries the verified numbers through verbatim', () => {
     for (const needle of [
       '14,053',
-      '1,064',
-      '~240K records (~27%)',
+      '57,774 attribute values across 15 categories',
+      '125,807',
+      '77% of manual platform mappings',
+      'June 2026 – September 2026',
       '161/161',
       '80%+',
       '50,000+',

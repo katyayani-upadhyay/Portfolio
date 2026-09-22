@@ -24,11 +24,11 @@
       "company": "GobbleCube",
       "role": "AI Engineer Intern",
       "location": "Gurugram",
-      "period": "June 2026 – Present",
+      "period": "June 2026 – September 2026",
       "summary": "Built the first production-scale human validation layer over an ML attribute extraction (mistral:7b).",
       "bullets": [
-        "Built the first production-scale human validation layer over an ML attribute extraction (mistral:7b): a three-role FastAPI + React system on PostgreSQL spanning 14,053 SKUs, with 1,064 review decisions on launch day.",
-        "Recovered ~240K records (~27%) lost to a join defect.",
+        "Built the first production-scale human validation layer over an ML attribute extraction (mistral:7b): a three-role FastAPI + React system on PostgreSQL spanning 14,053 SKUs and 57,774 attribute values across 15 categories.",
+        "Recovered 125,807 records by fixing a join defect that silently ignored 77% of manual platform mappings.",
         "Drove schema drift to 0 via a Pydantic validation gate and a 12-rule canonicalisation engine (161/161 tests)."
       ],
       "readouts": [
@@ -37,12 +37,12 @@
           "label": "SKUs spanned"
         },
         {
-          "value": "1,064",
-          "label": "review decisions, launch day"
+          "value": "57,774",
+          "label": "attribute values, 15 categories"
         },
         {
-          "value": "~240K",
-          "label": "records recovered (~27%)"
+          "value": "125,807",
+          "label": "records recovered"
         },
         {
           "value": "161/161",

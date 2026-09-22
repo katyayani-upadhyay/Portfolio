@@ -31,9 +31,11 @@ describe('buildSystemPrompt', () => {
     for (const current of ['2/10 → 10/10', '56% → 100%', '0.95', '60-row stratified eval', '0 hallucinated answers']) {
       expect(prompt).toContain(current)
     }
-    for (const stale of ['0%→100%', '0% → 100%', '50%→100%', '0.99', '30-row']) {
+    for (const stale of ['0%→100%', '0% → 100%', '50%→100%', '0.99', '30-row', '1,064', '240K', 'launch day', 'Present']) {
       expect(prompt).not.toContain(stale)
     }
+    expect(prompt).toContain('125,807')
+    expect(prompt).toContain('57,774 attribute values across 15 categories')
   })
 
   it('keeps the resting message unchanged', () => {

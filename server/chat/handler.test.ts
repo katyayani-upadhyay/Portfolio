@@ -24,6 +24,7 @@ describe('POST /api/chat', () => {
     const fetchImpl = vi.fn(async (_url: RequestInfo | URL, init?: RequestInit) => {
       const sent = JSON.parse(String(init?.body))
       expect(sent.systemInstruction.parts[0].text).toContain('14,053')
+      expect(sent.systemInstruction.parts[0].text).toContain('125,807')
       expect(sent.systemInstruction.parts[0].text).toContain(NOT_SHARED)
       expect(sent.contents[0].parts[0].text).toBe('What does the Copilot do?')
       expect(sent.generationConfig.maxOutputTokens).toBeLessThanOrEqual(256)

@@ -261,7 +261,7 @@ the hero is content-height.
 
 Five rows, right-aligned mono values, `white-space: nowrap`, hairline dividers,
 a 2 px accent tick on the active row (Status). Every value is derived from
-`facts.json`: Status "Open to AI/ML & DS roles — 2026", Now "AI Engineer Intern @
+`facts.json`: Status "Open to AI/ML & DS roles — 2026", Latest "AI Engineer Intern @
 GobbleCube", Degree "B.Tech CS · CGPA 8.56", Projects "3 flagship, live", Eval
 "60-row eval — gate PASS". Rows repeating the eyebrow or tagline were removed.
 Keys are one word so nothing wraps at 390 px.
@@ -312,3 +312,10 @@ short values, stepping down for long strings so no cell wraps.
   flag, one retry on transient upstream errors, 9 s per-attempt timeout with
   `maxDuration = 30`, budget 2000/day/instance, and suggestion chips that stay
   available after answers so follow-ups do not require a reload.
+- 2026-09-22: Fact corrections from a read-only audit of the GobbleCube source:
+  removed the unsupported "1,064 review decisions on launch day"; the system now
+  reads "14,053 SKUs and 57,774 attribute values across 15 categories"; the
+  recovery line is "125,807 records by fixing a join defect that silently ignored
+  77% of manual platform mappings" (was "~240K (~27%)"). Internship dated
+  June–September 2026, past tense; hero row relabelled Latest. Tests pin the new
+  figures and reject the old ones, including in the bundled prompt.
